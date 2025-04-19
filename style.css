@@ -1,0 +1,55 @@
+body {
+    margin: 0;
+    overflow: hidden; 
+}
+
+canvas {
+    display: block;
+}
+
+#initial-view {
+    height: 100vh; /* Use height instead of min-height */
+    width: 100%; /* Ensure full width */
+    position: fixed; /* Keep it fixed at the top */
+    top: 0;
+    left: 0;
+    z-index: 10; /* Keep it above portfolio sections initially */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #222;
+    color: #eee;
+    /* position: relative; */ /* Change from relative to fixed */
+    overflow: hidden; /* Hide elements flying off screen */
+}
+
+.portfolio-section {
+    padding: 40px;
+    border-bottom: 1px solid #ddd;
+    min-height: 60vh;
+    /* display: none; is set inline initially */
+    background-color: #fff; /* Give sections a background */
+    position: relative; /* Needed for z-index stacking if required later */
+    z-index: 1; /* Below initial-view */
+    margin-top: 100vh; /* Add margin to push sections below the fixed initial view */
+}
+
+/* Style adjustments needed after deconstruction */
+body.deconstructed #initial-view {
+    /* Styles to apply to initial-view after animation (e.g., pointer-events: none;) */
+}
+
+body.deconstructed .portfolio-section {
+    margin-top: 0; /* Remove the margin once initial view is gone */
+}
+
+.portfolio-section h2 {
+    margin-top: 0;
+    color: #007bff;
+}
+
+/* Style for the dynamically created shapes */
+.shape {
+    position: absolute;
+    /* Other properties (size, color, top, left) will be set inline */
+} 
