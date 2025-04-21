@@ -1,64 +1,118 @@
 // Galaxy Portfolio Logic
 
-// Ensure THREE is available globally from the script tag
+// Ensure THREE is available globally
 if (typeof THREE === 'undefined') {
     console.error('THREE.js library not loaded!');
 }
 
-// Scene setup
+// --- Portfolio Content Data ---
+// IMPORTANT: Replace these placeholders with your actual content!
+const aboutMeContent = {
+    title: "About Me",
+    text: `<p>Hello! I'm [Your Name/Team Name], a passionate developer/designer exploring the vast universe of technology.</p>
+           <p>My journey began with [Your Story]. I specialize in [Your Skills] and love creating [What you love creating].</p>
+           <p>This portfolio showcases some constellations of my work. Feel free to explore!</p>
+           <p>Connect with me: [Link to LinkedIn/GitHub/etc.]</p>`
+           // Consider adding a contact form link or info here too
+};
+
+const projectsData = [
+    {
+        id: "project-1",
+        name: "Project Alpha",
+        texture: 'assets/textures/planet1.jpeg', // CORRECTED EXTENSION
+        description: "A brief description of Project Alpha, highlighting its goals and key features.",
+        tech: "JavaScript, Three.js, HTML, CSS",
+        liveUrl: "#", // Add live URL
+        codeUrl: "#", // Add code URL
+        image: 'assets/images/project1_preview.jpg' // Add preview image path
+    },
+    {
+        id: "project-2",
+        name: "Project Beta",
+        texture: 'assets/textures/planet2.jpeg', // CORRECTED EXTENSION
+        description: "Details about Project Beta, perhaps focusing on a different skill or technology.",
+        tech: "React, Node.js, Express, MongoDB",
+        liveUrl: "#",
+        codeUrl: "#",
+        image: 'assets/images/project2_preview.jpg'
+    },
+    {
+        id: "project-3",
+        name: "Project Gamma",
+        texture: 'assets/textures/planet3.jpg', // This seems correct based on file list
+        description: "Information on Project Gamma, showcasing versatility or a specific achievement.",
+        tech: "Python, Flask, PostgreSQL, Docker",
+        liveUrl: "#",
+        codeUrl: "#",
+        image: 'assets/images/project3_preview.jpg'
+    },
+    {
+        id: "project-4",
+        name: "Project Delta",
+        // texture: 'assets/textures/planet4.jpg', // Temporarily removed - file missing
+        description: "Description for Project Delta goes here. Maybe it was a cool data visualization?",
+        tech: "D3.js, SVG, JavaScript",
+        liveUrl: "#",
+        codeUrl: "#",
+        image: 'assets/images/project4_preview.jpg'
+    },
+    {
+        id: "project-5",
+        name: "Project Epsilon",
+        // texture: 'assets/textures/planet5.jpg', // Temporarily removed - file missing
+        description: "What about Project Epsilon? Perhaps a mobile-friendly web app?",
+        tech: "Vue.js, Firebase, PWA",
+        liveUrl: "#",
+        codeUrl: "#",
+        image: 'assets/images/project5_preview.jpg'
+    },
+    // --- NEW PROJECTS ADDED BELOW ---
+    // Add more projects as needed
+];
+
+// --- Scene Setup ---
 const scene = new THREE.Scene();
-// No background color, we use starfield
-
-// Camera setup
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 15;
+camera.position.z = 30; // Start further back to see the system
 
-// Renderer setup
 const canvas = document.querySelector('#bg');
-const renderer = new THREE.WebGLRenderer({ 
-    canvas: canvas, 
-    antialias: true 
-});
+const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 
-// Controls setup
+// --- Controls ---
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
-controls.minDistance = 5;
-controls.maxDistance = 50;
+controls.minDistance = 5;  // Adjust as needed
+controls.maxDistance = 100; // Adjust as needed
 
-// Lighting (Using increased intensity from previous debugging)
-const pointLight = new THREE.PointLight(0xffffff, 2.5); 
-pointLight.position.set(15, 15, 15);
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); 
-scene.add(pointLight, ambientLight);
+// --- Lighting ---
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+scene.add(ambientLight);
+const pointLight = new THREE.PointLight(0xffffff, 1.5, 300);
+pointLight.position.set(0, 0, 0); // Light emanates from the sun
+scene.add(pointLight);
 
-// Texture Loader
+// --- Texture Loader ---
 const textureLoader = new THREE.TextureLoader();
 
-// Function to add stars
+// --- Starfield ---
 function addStarfield() {
     const starVertices = [];
-    const starColors = []; // Array for colors
-    const starSizes = [];  // Array for sizes
-
+    const starColors = [];
+    const starSizes = [];
     const baseColor = new THREE.Color(0xffffff);
 
-    for (let i = 0; i < 10000; i++) {
-        const x = THREE.MathUtils.randFloatSpread(200);
-        const y = THREE.MathUtils.randFloatSpread(200);
-        const z = THREE.MathUtils.randFloatSpread(200);
+    for (let i = 0; i < 15000; i++) { // More stars
+        const x = THREE.MathUtils.randFloatSpread(400); // Wider spread
+        const y = THREE.MathUtils.randFloatSpread(400);
+        const z = THREE.MathUtils.randFloatSpread(400);
         starVertices.push(x, y, z);
-
-        // Add slight color variation
-        const color = baseColor.clone();
-        color.lerp(new THREE.Color(0xaaaaff), Math.random() * 0.3); // Lerp towards blueish
+        const color = baseColor.clone().lerp(new THREE.Color(0xaaaaff), Math.random() * 0.3);
         starColors.push(color.r, color.g, color.b);
-
-        // Add size variation
-        starSizes.push(Math.random() * 1.5 + 0.5); // Random size between 0.5 and 2.0 (relative)
+        starSizes.push(Math.random() * 1.5 + 0.5);
     }
 
     const starGeometry = new THREE.BufferGeometry();
@@ -66,179 +120,147 @@ function addStarfield() {
     starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));
     starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(starSizes, 1));
 
-    const starMaterial = new THREE.PointsMaterial({ 
-        // color: 0xffffff, // Use vertex colors instead
+    const starMaterial = new THREE.PointsMaterial({
         vertexColors: true,
-        size: 0.1, // Base size, will be multiplied by attribute
+        size: 0.1,
         sizeAttenuation: true,
         transparent: true,
         opacity: 0.8,
         depthWrite: false
     });
-
     const stars = new THREE.Points(starGeometry, starMaterial);
     scene.add(stars);
 }
+addStarfield();
 
-// Function to add Nebulae (REMOVING for now)
-/*
-function addNebulae() {
-    const nebulaTexture = textureLoader.load('...'); // Placeholder removed
-    const nebulaMaterial = new THREE.MeshBasicMaterial({...});
-    // ... rest of nebula creation ...
-}
-*/
+// --- Sun (About Me) ---
+const sunGeometry = new THREE.SphereGeometry(2.5, 32, 32);
+const sunMaterial = new THREE.MeshStandardMaterial({
+    emissive: 0xffff00, 
+    emissiveIntensity: 1,
+    // map: textureLoader.load('assets/textures/sun.jpg'), // Temporarily removed - file missing
+    color: 0xffff00 // Ensure it has a base color if emissive isn't enough
+});
+const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
+sunMesh.name = "AboutMeSun"; // Identifier for clicking
+sunMesh.userData = aboutMeContent; // Attach data
+scene.add(sunMesh);
 
-// --- Label Creation ---
-function createLabelSprite(text, fontsize = 90) {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    const font = `bold ${fontsize}px Arial`; // Make font bold
-    context.font = font;
+// --- Planets (Projects) ---
+const planets = []; // Holds planet meshes for interaction and animation
+const planetGeometry = new THREE.SphereGeometry(0.8, 32, 32);
+const orbitRadiusBase = 8;
+const angleStep = (Math.PI * 2) / projectsData.length;
 
-    // Measure text width to set canvas size
-    const metrics = context.measureText(text);
-    const textWidth = metrics.width;
-    const padding = 20;
-    canvas.width = textWidth + padding * 2;
-    canvas.height = fontsize + padding * 2;
-
-    // Background
-    context.fillStyle = "rgba(0, 0, 0, 0.5)"; // Semi-transparent black background
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    // Optional: Rounded corners for background
-    // context.beginPath();
-    // context.roundRect(0, 0, canvas.width, canvas.height, 15); // Adjust radius
-    // context.fillStyle = "rgba(0, 0, 0, 0.5)";
-    // context.fill();
-
-    // Text
-    context.font = font;
-    context.fillStyle = "rgba(255, 255, 255, 0.95)";
-    context.textAlign = "center";
-    context.textBaseline = "middle";
-    context.fillText(text, canvas.width / 2, canvas.height / 2);
-
-    const texture = new THREE.CanvasTexture(canvas);
-    const spriteMaterial = new THREE.SpriteMaterial({ 
-        map: texture, 
-        transparent: true
+projectsData.forEach((project, index) => {
+    const planetMaterial = new THREE.MeshStandardMaterial({
+        // Use texture from data IF it exists
+        map: project.texture ? textureLoader.load(project.texture) : null,
+        color: Math.random() * 0xffffff // Fallback random color if no texture
     });
-    const sprite = new THREE.Sprite(spriteMaterial);
+    const planetMesh = new THREE.Mesh(planetGeometry, planetMaterial);
 
-    // Scale sprite
-    const aspect = canvas.width / canvas.height;
-    sprite.scale.set(aspect * 2.5, 2.5, 1); // Slightly larger scale
+    const angle = angleStep * index;
+    const orbitRadius = orbitRadiusBase + index * 3; // Stagger orbits
+    planetMesh.position.x = Math.cos(angle) * orbitRadius;
+    planetMesh.position.z = Math.sin(angle) * orbitRadius;
+    // Keep y=0 for planar orbits, or add variation
 
-    sprite.visible = false; 
-    return sprite;
-}
+    planetMesh.name = project.id; // Use project ID for clicking
+    planetMesh.userData = project; // Attach project data
+    planetMesh.orbitRadius = orbitRadius;
+    planetMesh.angle = angle;
+    planetMesh.orbitSpeed = 0.005 + Math.random() * 0.005; // Vary speeds slightly
 
-// Placeholder Portfolio Nodes (Planets/Stars)
-const planets = []; // Array holds { mesh, name, label } 
-const nodeGeometry = new THREE.SphereGeometry(0.8, 32, 32);
+    scene.add(planetMesh);
+    planets.push(planetMesh);
+});
 
-// --- About Node ---
-const aboutTexture = textureLoader.load('assets/textures/gravel_road_diff_4k.jpg'); // Use local texture with underscore
-const aboutMaterial = new THREE.MeshStandardMaterial({ 
-    map: aboutTexture,
-    color: 0xffd700 // Keep fallback color in case texture fails
-}); 
-const aboutNode = new THREE.Mesh(nodeGeometry, aboutMaterial);
-aboutNode.position.set(-5, 0, 0);
-aboutNode.name = "About";
-const aboutLabel = createLabelSprite("About");
-aboutLabel.position.set(-5, 1.5, 0); // Position label above planet
-scene.add(aboutNode, aboutLabel);
-planets.push({ mesh: aboutNode, name: "About", label: aboutLabel });
-
-// --- Projects Node ---
-// No texture specified yet
-const projectsMaterial = new THREE.MeshStandardMaterial({ 
-    // map: null,
-    color: 0x00ffff // Fallback color
-}); 
-const projectsNode = new THREE.Mesh(nodeGeometry, projectsMaterial);
-projectsNode.position.set(5, 0, 0);
-projectsNode.name = "Projects";
-const projectsLabel = createLabelSprite("Projects");
-projectsLabel.position.set(5, 1.5, 0); // Position label above planet
-scene.add(projectsNode, projectsLabel);
-planets.push({ mesh: projectsNode, name: "Projects", label: projectsLabel });
-
-// --- Skills Node ---
-// No texture specified yet
-const skillsMaterial = new THREE.MeshStandardMaterial({ 
-    // map: null,
-    color: 0xff69b4 // Fallback color
-}); 
-const skillsNode = new THREE.Mesh(nodeGeometry, skillsMaterial);
-skillsNode.position.set(0, 5, -5);
-skillsNode.name = "Skills";
-const skillsLabel = createLabelSprite("Skills");
-skillsLabel.position.set(0, 6.5, -5); // Position label above planet
-scene.add(skillsNode, skillsLabel);
-planets.push({ mesh: skillsNode, name: "Skills", label: skillsLabel });
-
-// Raycasting for Interaction
+// --- Raycasting for Interaction ---
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
-let currentVisibleLabel = null;
 
-function onMouseClick(event) {
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-    raycaster.setFromCamera(mouse, camera);
+// DOM Elements for Modals
+const aboutModal = document.getElementById('about-modal');
+const projectModal = document.getElementById('project-modal');
+const aboutContentDiv = document.getElementById('about-content');
+const projectTitleEl = document.getElementById('project-title');
+const projectImageEl = document.getElementById('project-image');
+const projectDescriptionEl = document.getElementById('project-description');
+const projectTechEl = document.getElementById('project-tech');
+const projectLiveLinkEl = document.getElementById('project-live-link');
+const projectCodeLinkEl = document.getElementById('project-code-link');
 
-    // Important: Check intersection with planet meshes, not labels
-    const intersects = raycaster.intersectObjects(planets.map(p => p.mesh));
-
-    // Hide previously visible label
-    if (currentVisibleLabel) {
-        currentVisibleLabel.visible = false;
-        currentVisibleLabel = null;
-    }
-
-    if (intersects.length > 0) {
-        const clickedPlanetMesh = intersects[0].object;
-        // Find the corresponding planet data object
-        const planetData = planets.find(p => p.mesh === clickedPlanetMesh);
-        
-        if (planetData && planetData.label) {
-            planetData.label.visible = true;
-            currentVisibleLabel = planetData.label;
-            console.log(`Clicked on: ${planetData.name}, showing label.`);
-            // TODO: Add logic to display detailed content panel here
-        }
-    } else {
-        console.log("Clicked on background.");
-        // Clicked on background, label already hidden above
-    }
+function showAboutModal(data) {
+    aboutContentDiv.innerHTML = data.text; // Use innerHTML to render paragraphs etc.
+    aboutModal.style.display = 'block';
 }
 
-// Add Click Listener
+function showProjectModal(data) {
+    projectTitleEl.textContent = data.name;
+    projectImageEl.src = data.image;
+    projectImageEl.alt = data.name + " Preview";
+    projectDescriptionEl.textContent = data.description;
+    projectTechEl.textContent = data.tech;
+    projectLiveLinkEl.href = data.liveUrl;
+    projectCodeLinkEl.href = data.codeUrl;
+
+    // Hide links if URL is '#' or empty
+    projectLiveLinkEl.style.display = (data.liveUrl && data.liveUrl !== '#') ? 'inline' : 'none';
+    projectCodeLinkEl.style.display = (data.codeUrl && data.codeUrl !== '#') ? 'inline' : 'none';
+    // Handle separator visibility maybe?
+
+    projectModal.style.display = 'block';
+}
+
+function onMouseClick(event) {
+    // Calculate mouse position in normalized device coordinates
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+
+    // Check intersections with sun and planets
+    const intersects = raycaster.intersectObjects([sunMesh, ...planets]);
+
+    if (intersects.length > 0) {
+        const clickedObject = intersects[0].object;
+
+        if (clickedObject.name === "AboutMeSun") {
+            showAboutModal(clickedObject.userData);
+        } else if (clickedObject.userData && clickedObject.userData.id?.startsWith('project-')) {
+            showProjectModal(clickedObject.userData);
+        }
+    }
+    // No need to handle background clicks explicitly unless closing modals
+}
 window.addEventListener('click', onMouseClick, false);
 
-// Initial setup calls
-addStarfield();
-// addNebulae(); // REMOVED call
+// --- Animation Loop ---
+const clock = new THREE.Clock(); // For smooth animation
 
-// Animation loop
 function animate() {
     requestAnimationFrame(animate);
+    const delta = clock.getDelta(); // Time since last frame
 
-    // Update controls 
+    // Update controls
     controls.update();
 
-    // Rotate planets
+    // Rotate Sun
+    sunMesh.rotation.y += 0.001;
+
+    // Orbit Planets
     planets.forEach(planet => {
-        planet.mesh.rotation.y += 0.002; // Slow rotation
+        planet.angle += planet.orbitSpeed;
+        planet.position.x = Math.cos(planet.angle) * planet.orbitRadius;
+        planet.position.z = Math.sin(planet.angle) * planet.orbitRadius;
+        planet.rotation.y += 0.01; // Planet's own rotation
     });
 
     renderer.render(scene, camera);
 }
 
-// Handle window resize
+// --- Handle Window Resize ---
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -246,7 +268,24 @@ window.addEventListener('resize', () => {
     renderer.setPixelRatio(window.devicePixelRatio);
 });
 
-// Initial call to start animation
+// --- Start Animation ---
 animate();
 
-console.log("Applied texture to About planet. Others use fallback color."); 
+// --- Global Modal Close Function (if not already in HTML) ---
+// Make sure this function is accessible globally
+window.closeModal = function(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+    }
+};
+
+// Optional: Close modal if clicking outside the content
+window.addEventListener('click', (event) => {
+    if (event.target === aboutModal) {
+        closeModal('about-modal');
+    }
+    if (event.target === projectModal) {
+        closeModal('project-modal');
+    }
+}); 
