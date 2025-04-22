@@ -83,8 +83,9 @@ renderer.setPixelRatio(window.devicePixelRatio);
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
-controls.minDistance = 5;  // Adjust as needed
-controls.maxDistance = 100; // Adjust as needed
+controls.minDistance = 5;  
+controls.maxDistance = 100; 
+let originalEnableDamping = controls.enableDamping; // Store initial damping state
 
 // --- Lighting ---
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
@@ -257,9 +258,9 @@ let cameraAnimationTarget = new THREE.Vector3();
 const cameraAnimationSpeed = 1.5; 
 let targetOrbitTarget = null;
 let initialCameraPosition = new THREE.Vector3();
-let isAnimatingCameraBack = false; // Only used for exiting About overlay for now
-let currentAnimationTargetObject = null; // Store the object we are flying towards
-let flyBackTriggeredBy = null; // Keep track of what triggered fly-back ('about' or 'project')
+let isAnimatingCameraBack = false; 
+let currentAnimationTargetObject = null; 
+let flyBackTriggeredBy = null; 
 let pausedPlanet = null; // Keep track of the currently viewed/paused planet
 
 // --- Raycasting for Interaction ---
@@ -284,30 +285,30 @@ function startCameraAnimation(targetObject, zoomOffset) {
         console.log("Animation start ignored: Already animating.");
         return;
     }
-
-    console.log(`Attempting to start fly-in animation towards ${targetObject.name}`); // Log start
+    
+    console.log(`Attempting to start fly-in animation towards ${targetObject.name}`); 
     initialCameraPosition.copy(camera.position);
-    targetOrbitTarget = controls.target.clone();
+    targetOrbitTarget = controls.target.clone(); 
+    originalEnableDamping = controls.enableDamping; // Store current damping state
 
     currentAnimationTargetObject = targetObject;
 
     const direction = new THREE.Vector3();
     targetObject.getWorldPosition(direction); 
     cameraAnimationTarget.copy(direction); 
-    direction.sub(camera.position).normalize().multiplyScalar(-zoomOffset); // Fixed direction calculation (normalize BEFORE multiply)
+    direction.sub(camera.position).normalize().multiplyScalar(-zoomOffset); 
     cameraAnimationTarget.add(direction); 
-    // Ensure target isn't too close to the origin if target is origin (like sun)
     if (targetObject === sunMesh && cameraAnimationTarget.lengthSq() < 1) {
          console.warn("Calculated target too close to origin for Sun, adjusting.");
-         cameraAnimationTarget.set(0, 1, zoomOffset); // Adjust fallback for sun
+         cameraAnimationTarget.set(0, 1, zoomOffset); 
     }
-
-    console.log("Calculated target position:", cameraAnimationTarget); // Log target position
-
-    controls.target.copy(targetObject.position); // Point controls at the object center
+    console.log("Calculated target position:", cameraAnimationTarget); 
+    
+    // --- Disable controls and damping --- 
     controls.enabled = false;
+    controls.enableDamping = false; // <<< Disable damping during animation
     isAnimatingCamera = true;
-    console.log("isAnimatingCamera set to true. Controls disabled."); // Log state change
+    console.log("isAnimatingCamera set to true. Controls and Damping disabled."); 
 }
 
 // Function to show the About Me overlay
@@ -333,7 +334,7 @@ window.startExitAnimation = function() {
         aboutOverlay.classList.remove('visible');
         console.log("Removed 'visible' class from overlay immediately.");
     }
-    flyBackTriggeredBy = 'about'; // Set trigger type
+    flyBackTriggeredBy = 'about'; 
     isAnimatingCameraBack = true;
     controls.enabled = false;
 };
@@ -352,16 +353,7 @@ function showProjectModal(data) {
     projectModal.style.display = 'block';
     controls.enabled = false; // Keep controls disabled
     console.log("Showing project modal. OrbitControls disabled.");
-
-    // --- PAUSE PLANET ---
-    pausedPlanet = planets.find(p => p.name === data.id);
-    if (pausedPlanet) {
-        pausedPlanet.isPaused = true;
-        console.log(`>>> Pausing planet: ${pausedPlanet.name} (isPaused set to ${pausedPlanet.isPaused})`); // Log pause
-    } else {
-        console.warn(`Could not find planet ${data.id} to pause.`);
-    }
-    // --- END PAUSE PLANET ---
+    // Planet is already paused by onMouseClick
 }
 
 function onMouseClick(event) {
@@ -400,12 +392,39 @@ function onMouseClick(event) {
         if(clickedNamedObject){
             console.log(`Clicked on: ${clickedNamedObject.name}`); // Log clicked object
             if (clickedNamedObject.name === "AboutMeSun") {
+                // --- PAUSE ANY PREVIOUSLY PAUSED PLANET (if any) ---
+                if (pausedPlanet) {
+                    pausedPlanet.isPaused = false;
+                    console.log(`Resuming planet ${pausedPlanet.name} before focusing on sun.`);
+                    pausedPlanet = null;
+                }
+                 // --- END PAUSE ---
                 startCameraAnimation(clickedNamedObject, 6.0);
             } else if (clickedNamedObject.name === "ContactRocket") {
+                // --- PAUSE ANY PREVIOUSLY PAUSED PLANET (if any) ---
+                 if (pausedPlanet) {
+                    pausedPlanet.isPaused = false;
+                    console.log(`Resuming planet ${pausedPlanet.name} before opening contact.`);
+                    pausedPlanet = null;
+                }
+                 // --- END PAUSE ---
                 console.log("Contact rocket clicked!");
-                showContactModal();
+                showContactModal(); // Keep this instant for now
             } else if (clickedNamedObject.userData && clickedNamedObject.userData.id?.startsWith('project-')) {
-                console.log(`Clicked on Project Planet: ${clickedNamedObject.name}`); // Log planet click specifically
+                console.log(`Clicked on Project Planet: ${clickedNamedObject.name}`);
+                // --- PAUSE PLANET IMMEDIATELY ---
+                if (pausedPlanet && pausedPlanet !== clickedNamedObject) {
+                    pausedPlanet.isPaused = false;
+                     console.log(`Resuming previous planet ${pausedPlanet.name}.`);
+                }
+                pausedPlanet = clickedNamedObject; 
+                if(pausedPlanet) {
+                    pausedPlanet.isPaused = true;
+                    console.log(`>>> Pausing planet: ${pausedPlanet.name} immediately on click.`);
+                } else {
+                     console.warn("Could not identify clicked planet object to pause immediately.");
+                }
+                 // --- END PAUSE ---
                 startCameraAnimation(clickedNamedObject, 3.0);
             }
         } else {
@@ -423,40 +442,81 @@ function onMouseMove(event) {
     if (isAnimatingCamera || isAnimatingCameraBack ||
         (aboutOverlay && aboutOverlay.classList.contains('visible')) ||
         (projectModal && projectModal.style.display === 'block') ||
-        (document.getElementById('contact-modal') && document.getElementById('contact-modal').style.display === 'block')) { // Also check contact modal
-        tooltipElement.style.display = 'none'; // Ensure tooltip is hidden
-        canvas.style.cursor = defaultCursor; // Reset cursor
+        (document.getElementById('contact-modal') && document.getElementById('contact-modal').style.display === 'block')) { 
+        tooltipElement.style.display = 'none'; 
+        canvas.style.cursor = defaultCursor;
         return;
     }
 
-    // Calculate mouse position in normalized device coordinates
+    // Calculate mouse position
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
 
     // Check intersections with interactive objects
-    const intersects = raycaster.intersectObjects(interactiveObjects);
+    // Ensure recursive check is enabled for models if not already
+    const intersects = raycaster.intersectObjects(interactiveObjects, true);
 
     if (intersects.length > 0) {
-        const hoveredObject = intersects[0].object;
-        let objectName = '';
-
-        if (hoveredObject.name === "AboutMeSun") {
-            objectName = "About Me";
-        } else if (hoveredObject.name === "ContactRocket") {
-            objectName = "Contact Me";
-        } else if (hoveredObject.userData && hoveredObject.userData.name) {
-            objectName = hoveredObject.userData.name;
+        // Find the main interactive object (sun, planet sphere, loaded rocket scene)
+        let hoveredNamedObject = null;
+        for(let i = 0; i < intersects.length; i++) {
+            let obj = intersects[i].object;
+            while (obj.parent && !interactiveObjects.includes(obj)) { 
+                obj = obj.parent;
+            }
+            if (interactiveObjects.includes(obj)) {
+                hoveredNamedObject = obj;
+                break; 
+            }             
         }
 
-        if (objectName) {
-            tooltipElement.style.display = 'block';
-            tooltipElement.textContent = objectName;
-            tooltipElement.style.left = (event.clientX + 15) + 'px';
-            tooltipElement.style.top = (event.clientY + 10) + 'px';
-            canvas.style.cursor = 'pointer';
+        if (hoveredNamedObject) {
+            let objectName = '';
+            
+            if (hoveredNamedObject.name === "AboutMeSun") { objectName = "About Me"; }
+            else if (hoveredNamedObject.name === "ContactRocket") { objectName = "Contact Me"; }
+            else if (hoveredNamedObject.userData && hoveredNamedObject.userData.name) { objectName = hoveredNamedObject.userData.name; }
+
+            if (objectName) {
+                // --- Calculate position above object using bounding box ---
+                const boundingBox = new THREE.Box3().setFromObject(hoveredNamedObject); 
+                const center = new THREE.Vector3();
+                boundingBox.getCenter(center);
+                const size = new THREE.Vector3();
+                boundingBox.getSize(size);
+
+                // Point slightly above the top-center of the bounding box
+                const topCenterOffset = new THREE.Vector3(0, size.y / 2 + 0.6, 0); 
+                const tooltipAnchor3D = center.add(topCenterOffset);
+                
+                const projectedPosition = tooltipAnchor3D.project(camera); 
+                // ---------------------------------------------------------
+
+                const isVisible = Math.abs(projectedPosition.x) <= 1 && Math.abs(projectedPosition.y) <= 1 && projectedPosition.z < 1;
+
+                if (isVisible) {
+                    const screenX = (projectedPosition.x + 1) / 2 * window.innerWidth;
+                    const screenY = (-projectedPosition.y + 1) / 2 * window.innerHeight;
+                    
+                    tooltipElement.textContent = objectName;
+                    tooltipElement.style.left = `${screenX}px`;
+                    tooltipElement.style.top = `${screenY}px`;
+                    // Center the tooltip ON the projected anchor point
+                    tooltipElement.style.transform = 'translate(-50%, -50%)'; 
+                    tooltipElement.style.display = 'block';
+                    canvas.style.cursor = 'pointer';
+                } else {
+                    tooltipElement.style.display = 'none';
+                    canvas.style.cursor = defaultCursor;
+                }
+            } else {
+                 tooltipElement.style.display = 'none';
+                 canvas.style.cursor = defaultCursor;
+            }
         } else {
+             // No named interactive object found up the hierarchy
             tooltipElement.style.display = 'none';
             canvas.style.cursor = defaultCursor;
         }
@@ -475,79 +535,89 @@ function animate() {
     requestAnimationFrame(animate);
     const delta = clock.getDelta(); // Use delta for smoother frame rate independence if needed
 
-    // Handle Camera Animation Forward
+    // Handle Camera Fly-in Animation
     if (isAnimatingCamera) {
-        console.log("Animating camera fly-in..."); // Log loop entry
+        console.log("Animating camera fly-in..."); 
         camera.position.lerp(cameraAnimationTarget, cameraAnimationSpeed * delta);
-        // controls.update(); // <<< REMOVED from inside loop
         const distanceToTarget = camera.position.distanceTo(cameraAnimationTarget);
-        console.log(`  Distance to target: ${distanceToTarget.toFixed(2)}`); // Log distance
+        console.log(`  Distance to target: ${distanceToTarget.toFixed(2)}`);
 
-        if (distanceToTarget < 0.5) {
-            console.log("  Reached target!"); // Log condition met
+        if (distanceToTarget < 0.5) { 
+            console.log("  Reached target!"); 
             isAnimatingCamera = false;
-            camera.position.copy(cameraAnimationTarget);
-            controls.update(); // Update controls ONCE after animation finishes
+            camera.position.copy(cameraAnimationTarget); // Snap position
 
             if (currentAnimationTargetObject) {
                  console.log(`  Animation finished for: ${currentAnimationTargetObject.name}`);
-                if (currentAnimationTargetObject.name === "AboutMeSun") {
-                    showAboutOverlay();
-                } else if (currentAnimationTargetObject.userData && currentAnimationTargetObject.userData.id?.startsWith('project-')) {
-                    showProjectModal(currentAnimationTargetObject.userData);
-                }
-                // Don't clear target object yet if it's a planet, needed for resuming
-                // currentAnimationTargetObject = null; 
+                 // --- REMOVED setting controls target here --- 
+                 // controls.target.copy(currentAnimationTargetObject.position);
+                 // controls.update(); 
+                 // ---------------------------------------------
+                 
+                 // --- Defer showing modal/overlay to next frame --- 
+                 const targetToShow = currentAnimationTargetObject; 
+                 requestAnimationFrame(() => {
+                     if (targetToShow.name === "AboutMeSun") {
+                         showAboutOverlay();
+                     } else if (targetToShow.userData && targetToShow.userData.id?.startsWith('project-')) {
+                         showProjectModal(targetToShow.userData); 
+                     }
+                 });
+                 // --------------------------------------------------
+                 
             } else {
                  console.warn("  Camera animation finished but target object was null.");
             }
         }
-    }
-    // Handle Camera Animation Backward
+    } 
+    // Handle Camera Fly-back Animation
     else if (isAnimatingCameraBack) {
-        console.log("Animating camera fly-back..."); // Add log
+        console.log(">>> Animating fly-back... Current Y:", camera.position.y.toFixed(2)); // Log entry and position
         camera.position.lerp(initialCameraPosition, cameraAnimationSpeed * delta);
-        // Optionally lerp target back for smoother look?
-        // controls.target.lerp(targetOrbitTarget, cameraAnimationSpeed * delta);
-        controls.target.copy(sunMesh.position); // Simple look at sun for now
-        controls.update(); 
-        const distanceToStart = camera.position.distanceTo(initialCameraPosition);
+        // controls.target.copy(sunMesh.position); // Maybe remove during debug?
+        // controls.update(); // Maybe remove during debug?
 
-        if (distanceToStart < 0.5) { // Reached previous position
+        const distanceToStart = camera.position.distanceTo(initialCameraPosition);
+         console.log(`>>> Fly-back distance to start: ${distanceToStart.toFixed(2)}`); // Log distance
+
+        if (distanceToStart < 0.5) { 
             console.log("Fly-back animation finished.");
             isAnimatingCameraBack = false;
             camera.position.copy(initialCameraPosition); 
             
-            // --- RESUME PLANET & HIDE MODAL --- 
             if (flyBackTriggeredBy === 'project') {
-                if (projectModal) projectModal.style.display = 'none';
-                console.log("Hid project modal after fly-back.");
-                // Resume the paused planet
-                if (pausedPlanet) {
+                // --- REMOVED hiding modal here --- 
+                // if (projectModal) projectModal.style.display = 'none'; 
+                console.log("Project fly-back finished. Resuming planet.");
+                if (pausedPlanet) { 
                     pausedPlanet.isPaused = false;
                     console.log(`Resumed planet: ${pausedPlanet.name}`);
-                    pausedPlanet = null; // Clear the paused planet reference
+                    pausedPlanet = null; 
+                } else {
+                     console.warn("Project fly-back finished, but no planet was marked as paused.");
                 }
             }
-            // Clear trigger for both cases
-            flyBackTriggeredBy = null;
-            // --- END RESUME PLANET --- 
-            
+             flyBackTriggeredBy = null; 
+             
             // Restore original controls target and enable controls
             if (targetOrbitTarget) {
                 controls.target.copy(targetOrbitTarget);
             }
-            controls.enabled = true; 
+            controls.enabled = true; // <<< Re-enable controls
+            console.log(`>>> CONTROLS ENABLED set to: ${controls.enabled}`); // <<< ADD SPECIFIC LOG
+            controls.enableDamping = originalEnableDamping; 
             controls.update(); 
             console.log("Controls enabled after fly-back.");
-            // Clear the target object reference after fly-back completes
-            currentAnimationTargetObject = null;
+            currentAnimationTargetObject = null; 
         }
     }
-    // Only update controls based on user input if no camera animation is active
+    // Update Controls if enabled and not animating
     else {
+        // Only call update if controls are enabled.
+        // If damping is enabled, update is needed continuously. 
+        // If disabled (e.g., during anim), update is less critical unless target changes.
         if (controls.enabled) {
-            controls.update();
+    controls.update();
         }
     }
 
@@ -623,9 +693,9 @@ function animate() {
         if (planet instanceof THREE.Mesh && typeof planet.angle !== 'undefined' && typeof planet.orbitSpeed !== 'undefined' && typeof planet.orbitRadius !== 'undefined') {
             // Log position before animating
             // console.log(`Animating planet: ${planet.name} starting at x=${planet.position.x.toFixed(2)}`); 
-            planet.angle += planet.orbitSpeed;
-            planet.position.x = Math.cos(planet.angle) * planet.orbitRadius;
-            planet.position.z = Math.sin(planet.angle) * planet.orbitRadius;
+        planet.angle += planet.orbitSpeed;
+        planet.position.x = Math.cos(planet.angle) * planet.orbitRadius;
+        planet.position.z = Math.sin(planet.angle) * planet.orbitRadius;
             // Log position after animating
             // console.log(`   Animated planet: ${planet.name} ending at x=${planet.position.x.toFixed(2)}`);
             
@@ -653,44 +723,56 @@ window.addEventListener('resize', () => {
 animate();
 
 // --- Global Modal Close Function --- 
-// Updated to handle project modal fly-back trigger
 window.closeModal = function(modalId) {
     const modal = document.getElementById(modalId);
     if (!modal) return;
+    console.log(`closeModal called for: ${modalId}`); 
 
     if (modalId === 'project-modal') {
-        // Trigger fly-back animation for project modal
-        console.log("Closing project modal - initiating fly-back.");
-        flyBackTriggeredBy = 'project'; // Set trigger type
-        isAnimatingCameraBack = true;
-        controls.enabled = false;
-        // DO NOT hide the modal here, animate loop will hide it
+        if (isAnimatingCameraBack) {
+            console.log("Project modal close ignored: fly-back already in progress.");
+            return;
+        }
+        console.log(">>> Project modal close: Hiding modal AND Initiating fly-back.");
+        // --- HIDE MODAL IMMEDIATELY --- 
+        modal.style.display = 'none'; 
+        // ----------------------------- 
+        flyBackTriggeredBy = 'project';
+        isAnimatingCameraBack = true; 
+        controls.enabled = false; 
+        // No need to disable damping here, fly-back in animate handles it if needed
     } else if (modalId === 'contact-modal') {
-        // Close contact modal instantly and re-enable controls (if appropriate)
         modal.style.display = 'none';
         console.log(`Closed modal instantly: ${modalId}`);
         // Re-enable controls only if nothing else requires them disabled
-        if (!isAnimatingCamera && !isAnimatingCameraBack && !(aboutOverlay && aboutOverlay.classList.contains('visible')) && !(projectModal && projectModal.style.display === 'block') ) {
+        if (!isAnimatingCamera && !isAnimatingCameraBack && !(aboutOverlay && aboutOverlay.classList.contains('visible')) && !(projectModal && projectModal.style.display === 'block')) {
              controls.enabled = true;
-             console.log("Controls re-enabled after contact modal close.");
+             controls.enableDamping = originalEnableDamping; // <<< Restore damping here too
+             controls.update(); // Update after re-enabling
+             console.log("Controls and damping re-enabled after contact modal close.");
         }
     } else {
-        // Handle other modals instantly if needed
         modal.style.display = 'none';
     }
 };
 
-// Event listener for closing overlay/modal by clicking background
+// --- Background Click Listener ---
 window.addEventListener('click', (event) => {
+    // About Me Overlay Exit
     if (aboutOverlay && aboutOverlay.classList.contains('visible') && event.target === aboutOverlay) {
-        startExitAnimation(); // Uses dedicated function for About fly-back
+        startExitAnimation(); 
     }
-    if (projectModal && projectModal.style.display === 'block' && event.target === projectModal) {
-        closeModal('project-modal'); // Calls updated closeModal
+    // Project Modal Exit (More specific check)
+    const projModalElement = document.getElementById('project-modal'); // Get element reference
+    if (projModalElement && projModalElement.style.display === 'block' && event.target === projModalElement) {
+        console.log("Project Modal background clicked. Calling closeModal..."); // Add log
+        closeModal('project-modal');
     }
+    // Contact Modal Exit
     const contactModal = document.getElementById('contact-modal');
     if (contactModal && contactModal.style.display === 'block' && event.target === contactModal) {
-        closeModal('contact-modal'); // Calls updated closeModal
+        console.log("Contact Modal background clicked. Calling closeModal..."); // Add log
+        closeModal('contact-modal'); 
     }
 });
 

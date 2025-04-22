@@ -37,6 +37,7 @@
                  <a id="project-live-link" href="#" target="_blank" rel="noopener noreferrer">Live Demo</a> |
                  <a id="project-code-link" href="#" target="_blank" rel="noopener noreferrer">View Code</a>
             </div>
+            <button class="overlay-button" onclick="closeModal('project-modal')">Back to Overview</button>
         </div>
     </div>
 
@@ -63,12 +64,5 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="script.js"></script>
-
-    <!-- Simple function to close modals (can be moved to script.js later) -->
-    <script>
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-    </script>
 </body>
 </html> 
