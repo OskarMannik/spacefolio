@@ -10,16 +10,18 @@
     <!-- The canvas will be the main background/view -->
     <canvas id="bg"></canvas>
 
-    <!-- Modal for "About Me" -->
-    <div id="about-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" onclick="closeModal('about-modal')">&times;</span>
-            <h2>About Me</h2>
-            <div id="about-content">
-                <!-- Content will be populated by JS -->
-                <p>Loading...</p>
-            </div>
+    <!-- Tooltip for hover effect -->
+    <div id="tooltip"></div>
+
+    <!-- Overlay for "About Me" (replaces modal) -->
+    <div id="about-overlay" class="content-overlay">
+        <span class="close-button" onclick="startExitAnimation()">&times;</span>
+        <h2>About Me</h2>
+        <div id="about-overlay-content">
+            <!-- Content will be populated by JS -->
+            <p>Loading...</p>
         </div>
+        <button id="back-button" class="overlay-button" onclick="startExitAnimation()">Back to Overview</button>
     </div>
 
     <!-- Modal for "Project Details" -->
@@ -38,9 +40,28 @@
         </div>
     </div>
 
+    <!-- Modal for Contact Info -->
+    <div id="contact-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('contact-modal')">&times;</span>
+            <h2>Contact Me</h2>
+            <div id="contact-details">
+                 <p>You can reach me via the following channels:</p>
+                 <ul>
+                    <li><strong>Email:</strong> <a href="mailto:your.email@example.com">your.email@example.com</a></li> 
+                    <li><strong>LinkedIn:</strong> <a href="#" target="_blank" rel="noopener noreferrer">Your LinkedIn Profile</a></li> <!-- Replace # -->
+                    <li><strong>GitHub:</strong> <a href="#" target="_blank" rel="noopener noreferrer">Your GitHub Profile</a></li>   <!-- Replace # -->
+                    <!-- Add other relevant links -->
+                 </ul>
+                 <p>Looking forward to hearing from you!</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="script.js"></script>
 
     <!-- Simple function to close modals (can be moved to script.js later) -->
