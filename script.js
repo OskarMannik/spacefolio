@@ -73,7 +73,7 @@ const projectsData = [
 // --- Scene Setup ---
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 30; // Start further back to see the system
+camera.position.z = 28; // Start closer, but ensure all planets visible
 
 const canvas = document.querySelector('#bg');
 const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
@@ -270,8 +270,8 @@ const mouse = new THREE.Vector2();
 
 // DOM Elements
 const tooltipElement = document.getElementById('tooltip');
-const aboutOverlay = document.getElementById('about-overlay');
-const aboutOverlayContent = document.getElementById('about-overlay-content');
+const aboutModal = document.getElementById('about-modal'); // Changed from aboutOverlay
+const aboutContentContainer = document.getElementById('about-overlay-content'); // Keep existing ID for content
 const projectModal = document.getElementById('project-modal');
 const projectTitleEl = document.getElementById('project-title');
 const projectImageEl = document.getElementById('project-image');
@@ -279,6 +279,7 @@ const projectDescriptionEl = document.getElementById('project-description');
 const projectTechEl = document.getElementById('project-tech');
 const projectLiveLinkEl = document.getElementById('project-live-link');
 const projectCodeLinkEl = document.getElementById('project-code-link');
+const contactModal = document.getElementById('contact-modal'); // Added for consistency
 
 // Updated: Generic function to start fly-in animation
 function startCameraAnimation(targetObject, zoomOffset) {
@@ -296,9 +297,9 @@ function startCameraAnimation(targetObject, zoomOffset) {
 
     const direction = new THREE.Vector3();
     targetObject.getWorldPosition(direction); 
-    cameraAnimationTarget.copy(direction); 
+    cameraAnimationTarget.copy(direction);
     direction.sub(camera.position).normalize().multiplyScalar(-zoomOffset); 
-    cameraAnimationTarget.add(direction); 
+    cameraAnimationTarget.add(direction);
     if (targetObject === sunMesh && cameraAnimationTarget.lengthSq() < 1) {
          console.warn("Calculated target too close to origin for Sun, adjusting.");
          cameraAnimationTarget.set(0, 1, zoomOffset); 
@@ -312,33 +313,20 @@ function startCameraAnimation(targetObject, zoomOffset) {
     console.log("isAnimatingCamera set to true. Controls and Damping disabled."); 
 }
 
-// Function to show the About Me overlay
-function showAboutOverlay() {
-    console.log("Attempting to show About Overlay...");
-    if (!aboutOverlay || !aboutOverlayContent) {
-        console.error("About Overlay elements not found!");
+// Function to show the About Me modal (Renamed and updated)
+function showAboutModal() {
+    console.log("Attempting to show About Modal...");
+    if (!aboutModal || !aboutContentContainer) {
+        console.error("About Modal elements not found!");
         return;
     }
-    console.log("Populating About Overlay content.");
-    aboutOverlayContent.innerHTML = aboutMeContent.text;
-    aboutOverlay.classList.add('visible');
-    console.log("Added 'visible' class to overlay.");
+    console.log("Populating About Modal content.");
+    aboutContentContainer.innerHTML = aboutMeContent.text;
+    aboutModal.style.display = 'block'; // Use display block like other modals
+    console.log("Set 'display: block' for about-modal.");
     controls.enabled = false; // Keep disabled
     console.log("OrbitControls remain disabled.");
 }
-
-// Function to start exit animation (from About overlay)
-window.startExitAnimation = function() {
-    if (isAnimatingCameraBack || !aboutOverlay.classList.contains('visible')) return;
-    console.log("Starting exit animation from About Me...");
-    if (aboutOverlay) {
-        aboutOverlay.classList.remove('visible');
-        console.log("Removed 'visible' class from overlay immediately.");
-    }
-    flyBackTriggeredBy = 'about'; 
-    isAnimatingCameraBack = true;
-    controls.enabled = false;
-};
 
 function showProjectModal(data) {
     projectTitleEl.textContent = data.name;
@@ -357,12 +345,27 @@ function showProjectModal(data) {
     // Planet is already paused by onMouseClick
 }
 
+// Function to show Contact Modal
+function showContactModal() {
+    if (contactModal) {
+        console.log("Showing contact modal.");
+        contactModal.style.display = 'block';
+        // Keep controls disabled if animating, otherwise enable
+        if (!isAnimatingCamera && !isAnimatingCameraBack) {
+             controls.enabled = false; // Disable controls when contact modal is open
+             console.log("Controls disabled while contact modal open.");
+        } else {
+             console.log("Keeping controls disabled (camera animating).")
+        }
+    }
+}
+
 function onMouseClick(event) {
-    // Don't process clicks if an overlay/modal is visible or camera is animating
-    if (isAnimatingCamera || isAnimatingCameraBack || 
-        (aboutOverlay && aboutOverlay.classList.contains('visible')) ||
-        (projectModal && projectModal.style.display === 'block') || 
-        (document.getElementById('contact-modal') && document.getElementById('contact-modal').style.display === 'block')) {
+    // Don't process clicks if a modal is visible or camera is animating
+    if (isAnimatingCamera || isAnimatingCameraBack ||
+        (aboutModal && aboutModal.style.display === 'block') || // Check aboutModal
+        (projectModal && projectModal.style.display === 'block') ||
+        (contactModal && contactModal.style.display === 'block')) { // Check contactModal
         return;
     }
 
@@ -381,15 +384,15 @@ function onMouseClick(event) {
         for(let i = 0; i < intersects.length; i++) {
             let obj = intersects[i].object;
             // Traverse up scene graph to find the named parent (sun, planet, or loaded rocket)
-            while (obj.parent && !interactiveObjects.includes(obj)) { 
+            while (obj.parent && !interactiveObjects.includes(obj)) {
                 obj = obj.parent;
             }
             if (interactiveObjects.includes(obj)) {
                 clickedNamedObject = obj;
                 break; // Found the main interactive object
-            }             
+            }
         }
-        
+
         if(clickedNamedObject){
             console.log(`Clicked on: ${clickedNamedObject.name}`); // Log clicked object
             if (clickedNamedObject.name === "AboutMeSun") {
@@ -410,7 +413,10 @@ function onMouseClick(event) {
                 }
                  // --- END PAUSE ---
                 console.log("Contact rocket clicked!");
-                showContactModal(); // Keep this instant for now
+                // Start camera animation towards rocket *before* showing modal
+                startCameraAnimation(clickedNamedObject, 3.0); // Zoom closer to rocket
+                // Modal will be shown after animation finishes in animate() loop
+
             } else if (clickedNamedObject.userData && clickedNamedObject.userData.id?.startsWith('project-')) {
                 console.log(`Clicked on Project Planet: ${clickedNamedObject.name}`);
                 // --- PAUSE PLANET IMMEDIATELY ---
@@ -418,7 +424,7 @@ function onMouseClick(event) {
                     pausedPlanet.isPaused = false;
                      console.log(`Resuming previous planet ${pausedPlanet.name}.`);
                 }
-                pausedPlanet = clickedNamedObject; 
+                pausedPlanet = clickedNamedObject;
                 if(pausedPlanet) {
                     pausedPlanet.isPaused = true;
                     console.log(`>>> Pausing planet: ${pausedPlanet.name} immediately on click.`);
@@ -439,12 +445,12 @@ window.addEventListener('click', onMouseClick, false);
 
 // Function to handle mouse movement for hover effects
 function onMouseMove(event) {
-    // Don't show hover effects if an overlay/modal is active or camera is animating
+    // Don't show hover effects if a modal is active or camera is animating
     if (isAnimatingCamera || isAnimatingCameraBack ||
-        (aboutOverlay && aboutOverlay.classList.contains('visible')) ||
+        (aboutModal && aboutModal.style.display === 'block') || // Check aboutModal
         (projectModal && projectModal.style.display === 'block') ||
-        (document.getElementById('contact-modal') && document.getElementById('contact-modal').style.display === 'block')) { 
-        tooltipElement.style.display = 'none'; 
+        (contactModal && contactModal.style.display === 'block')) { // Check contactModal
+        tooltipElement.style.display = 'none';
         canvas.style.cursor = defaultCursor;
         return;
     }
@@ -538,87 +544,78 @@ function animate() {
 
     // Handle Camera Fly-in Animation
     if (isAnimatingCamera) {
-        console.log("Animating camera fly-in..."); 
+        console.log("Animating camera fly-in...");
         camera.position.lerp(cameraAnimationTarget, cameraAnimationSpeed * delta);
         const distanceToTarget = camera.position.distanceTo(cameraAnimationTarget);
         console.log(`  Distance to target: ${distanceToTarget.toFixed(2)}`);
 
-        if (distanceToTarget < 0.5) { 
-            console.log("  Reached target!"); 
+        if (distanceToTarget < 0.5) {
+            console.log("  Reached target!");
             isAnimatingCamera = false;
             camera.position.copy(cameraAnimationTarget); // Snap position
 
             if (currentAnimationTargetObject) {
                  console.log(`  Animation finished for: ${currentAnimationTargetObject.name}`);
-                 // --- REMOVED setting controls target here --- 
-                 // controls.target.copy(currentAnimationTargetObject.position);
-                 // controls.update(); 
-                 // ---------------------------------------------
-                 
                  // --- Defer showing modal/overlay to next frame --- 
-                 const targetToShow = currentAnimationTargetObject; 
+                 const targetToShow = currentAnimationTargetObject;
                  requestAnimationFrame(() => {
                      if (targetToShow.name === "AboutMeSun") {
-                         showAboutOverlay();
+                         showAboutModal(); // Call the updated function
                      } else if (targetToShow.userData && targetToShow.userData.id?.startsWith('project-')) {
-                         showProjectModal(targetToShow.userData); 
+                         showProjectModal(targetToShow.userData);
+                     } else if (targetToShow.name === "ContactRocket") {
+                         showContactModal(); // Show contact modal after animation
                      }
                  });
                  // --------------------------------------------------
-                 
+
             } else {
                  console.warn("  Camera animation finished but target object was null.");
             }
         }
-    } 
+    }
     // Handle Camera Fly-back Animation
     else if (isAnimatingCameraBack) {
         console.log(">>> Animating fly-back... Current Y:", camera.position.y.toFixed(2)); // Log entry and position
         camera.position.lerp(initialCameraPosition, cameraAnimationSpeed * delta);
-        // controls.target.copy(sunMesh.position); // Maybe remove during debug?
-        // controls.update(); // Maybe remove during debug?
 
         const distanceToStart = camera.position.distanceTo(initialCameraPosition);
          console.log(`>>> Fly-back distance to start: ${distanceToStart.toFixed(2)}`); // Log distance
 
-        if (distanceToStart < 0.5) { 
+        if (distanceToStart < 0.5) {
             console.log("Fly-back animation finished.");
             isAnimatingCameraBack = false;
-            camera.position.copy(initialCameraPosition); 
-            
-            if (flyBackTriggeredBy === 'project') {
-                // --- REMOVED hiding modal here --- 
-                // if (projectModal) projectModal.style.display = 'none'; 
-                console.log("Project fly-back finished. Resuming planet.");
-                if (pausedPlanet) { 
+            camera.position.copy(initialCameraPosition);
+
+            // Resume planet if fly-back was triggered by project or about modal closing
+            if (flyBackTriggeredBy === 'project' || flyBackTriggeredBy === 'about') {
+                console.log(`${flyBackTriggeredBy} fly-back finished. Resuming planet if paused.`);
+                if (pausedPlanet) {
                     pausedPlanet.isPaused = false;
                     console.log(`Resumed planet: ${pausedPlanet.name}`);
-                    pausedPlanet = null; 
+                    pausedPlanet = null;
                 } else {
-                     console.warn("Project fly-back finished, but no planet was marked as paused.");
+                     console.warn(`${flyBackTriggeredBy} fly-back finished, but no planet was marked as paused.`);
                 }
             }
-             flyBackTriggeredBy = null; 
-             
+             flyBackTriggeredBy = null;
+
             // Restore original controls target and enable controls
             if (targetOrbitTarget) {
                 controls.target.copy(targetOrbitTarget);
             }
             controls.enabled = true; // <<< Re-enable controls
             console.log(`>>> CONTROLS ENABLED set to: ${controls.enabled}`); // <<< ADD SPECIFIC LOG
-            controls.enableDamping = originalEnableDamping; 
-            controls.update(); 
+            controls.enableDamping = originalEnableDamping;
+            controls.update();
             console.log("Controls enabled after fly-back.");
-            currentAnimationTargetObject = null; 
+            currentAnimationTargetObject = null;
         }
     }
     // Update Controls if enabled and not animating
     else {
-        // Only call update if controls are enabled.
-        // If damping is enabled, update is needed continuously. 
-        // If disabled (e.g., during anim), update is less critical unless target changes.
         if (controls.enabled) {
-    controls.update();
+            controls.update();
         }
     }
 
@@ -727,61 +724,41 @@ animate();
 window.closeModal = function(modalId) {
     const modal = document.getElementById(modalId);
     if (!modal) return;
-    console.log(`closeModal called for: ${modalId}`); 
+    console.log(`closeModal called for: ${modalId}`);
 
-    if (modalId === 'project-modal') {
+    if (modalId === 'project-modal' || modalId === 'about-modal' || modalId === 'contact-modal') {
+        // Handle fly-back for Project, About, and Contact modals
         if (isAnimatingCameraBack) {
-            console.log("Project modal close ignored: fly-back already in progress.");
+            console.log(`${modalId} close ignored: fly-back already in progress.`);
             return;
         }
-        console.log(">>> Project modal close: Hiding modal AND Initiating fly-back.");
+        console.log(`>>> ${modalId} close: Hiding modal AND Initiating fly-back.`);
         // --- HIDE MODAL IMMEDIATELY --- 
-        modal.style.display = 'none'; 
+        modal.style.display = 'none';
         // ----------------------------- 
-        flyBackTriggeredBy = 'project';
-        isAnimatingCameraBack = true; 
-        controls.enabled = false; 
-        // No need to disable damping here, fly-back in animate handles it if needed
-    } else if (modalId === 'contact-modal') {
-        modal.style.display = 'none';
-        console.log(`Closed modal instantly: ${modalId}`);
-        // Re-enable controls only if nothing else requires them disabled
-        if (!isAnimatingCamera && !isAnimatingCameraBack && !(aboutOverlay && aboutOverlay.classList.contains('visible')) && !(projectModal && projectModal.style.display === 'block')) {
-             controls.enabled = true;
-             controls.enableDamping = originalEnableDamping; // <<< Restore damping here too
-             controls.update(); // Update after re-enabling
-             console.log("Controls and damping re-enabled after contact modal close.");
-        }
+        // Set trigger source based on modal type
+        if (modalId === 'project-modal') { flyBackTriggeredBy = 'project'; }
+        else if (modalId === 'about-modal') { flyBackTriggeredBy = 'about'; }
+        else if (modalId === 'contact-modal') { flyBackTriggeredBy = 'contact'; }
+
+        isAnimatingCameraBack = true;
+        controls.enabled = false;
     } else {
+        // Default case for any other potential modals (future-proofing)
         modal.style.display = 'none';
+        console.log(`Closed modal instantly (default case): ${modalId}`);
     }
 };
 
-// --- Background Click Listener ---
+// --- Background Click Listener --- 
 window.addEventListener('click', (event) => {
-    // About Me Overlay Exit
-    if (aboutOverlay && aboutOverlay.classList.contains('visible') && event.target === aboutOverlay) {
-        startExitAnimation(); 
-    }
-    // Project Modal Exit (More specific check)
-    const projModalElement = document.getElementById('project-modal'); // Get element reference
-    if (projModalElement && projModalElement.style.display === 'block' && event.target === projModalElement) {
-        console.log("Project Modal background clicked. Calling closeModal..."); // Add log
-        closeModal('project-modal');
-    }
-    // Contact Modal Exit
-    const contactModal = document.getElementById('contact-modal');
-    if (contactModal && contactModal.style.display === 'block' && event.target === contactModal) {
-        console.log("Contact Modal background clicked. Calling closeModal..."); // Add log
-        closeModal('contact-modal'); 
+    // Check if click is on the background of ANY visible modal
+    const modals = [aboutModal, projectModal, contactModal];
+    for (const modal of modals) {
+        if (modal && modal.style.display === 'block' && event.target === modal) {
+             console.log(`${modal.id} background clicked. Calling closeModal...`);
+             closeModal(modal.id);
+             break; // Close only the clicked modal
+        }
     }
 });
-
-// Function to show Contact Modal
-function showContactModal() {
-    const contactModal = document.getElementById('contact-modal');
-    if (contactModal) {
-        console.log("Showing contact modal."); // Add log
-        contactModal.style.display = 'block';
-    }
-} 

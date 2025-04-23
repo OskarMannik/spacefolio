@@ -3,11 +3,12 @@ body, h1, h2, h3, p, ul, li, form, label, input, textarea, button {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: sans-serif; /* Choose a better font later */
+    /* Use Orbitron as the primary font, fallback to sans-serif */
+    font-family: 'Orbitron', sans-serif;
 }
 
 body {
-    background-color: #111; /* Fallback color */
+    background-color: #000; /* Darker background */
     color: #eee;
     line-height: 1.6;
     overflow: hidden; /* Prevent scrollbars on the body */
@@ -33,56 +34,75 @@ canvas#bg {
     width: 100%; /* Full width */
     height: 100%; /* Full height */
     overflow: auto; /* Enable scroll if needed */
-    background-color: rgba(0, 0, 0, 0.6); /* Black w/ opacity */
+    /* Make background more transparent and darker */
+    background-color: rgba(0, 0, 10, 0.75); /* Dark blue tint, 75% opacity */
     padding-top: 60px; /* Location of the box */
 }
 
 .modal-content {
-    background-color: #282828; /* Dark background for modal */
-    color: #eee;
+    /* Spacey background and border */
+    background-color: rgba(15, 15, 35, 0.9); /* Dark purple/blue, 90% opacity */
+    color: #e0e0e0; /* Slightly off-white text */
     margin: 5% auto; /* 5% from the top and centered */
     padding: 30px;
-    border: 1px solid #555;
+    border: 1px solid rgba(100, 150, 255, 0.6); /* Glowing blue border */
     width: 80%; /* Could be more or less, depending on screen size */
     max-width: 700px; /* Maximum width */
-    border-radius: 10px;
+    border-radius: 15px; /* More rounded */
     position: relative;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    box-shadow: 0 0 25px rgba(50, 100, 255, 0.5); /* Outer blue glow */
 }
 
 .modal-content h2 {
-    color: #00aaff;
-    margin-bottom: 1rem;
+    /* Space-themed heading */
+    font-family: 'Orbitron', sans-serif; /* Ensure Orbitron */
+    color: #90c0ff; /* Light cyan/blue */
+    margin-bottom: 1.5rem;
     text-align: center;
+    text-shadow: 0 0 8px rgba(150, 200, 255, 0.7);
+    font-size: 2.2rem; /* Slightly larger */
 }
 
 .modal-content p {
     margin-bottom: 1rem;
+    font-family: sans-serif; /* Use a readable sans-serif for body text */
+    color: #c0c0d0; /* Light grey/purple text */
+}
+
+.modal-content p strong {
+    color: #a0d0ff; /* Highlight strong text */
 }
 
 .modal-content a {
-    color: #61dafb; /* Light blue for links */
+    color: #87CEFA; /* LightSkyBlue */
     text-decoration: none;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+    font-weight: bold;
 }
 
 .modal-content a:hover {
-    text-decoration: underline;
+    color: #ffffff;
+    text-shadow: 0 0 10px #ffffff;
+    text-decoration: none;
 }
 
 /* The Close Button */
 .close-button {
     color: #aaa;
     position: absolute;
-    top: 10px;
+    top: 15px;
     right: 25px;
-    font-size: 35px;
+    font-size: 40px;
     font-weight: bold;
     line-height: 1;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
 }
 
 .close-button:hover,
 .close-button:focus {
     color: #fff;
+    text-shadow: 0 0 10px #fff;
     text-decoration: none;
     cursor: pointer;
 }
@@ -91,6 +111,10 @@ canvas#bg {
 @media (max-width: 600px) {
     .modal-content {
         width: 90%;
+        padding: 20px;
+    }
+    .modal-content h2 {
+        font-size: 1.8rem;
     }
 }
 
@@ -112,70 +136,6 @@ body.deconstructed .portfolio-section {
 .shape {
     position: absolute;
     /* Other properties (size, color, top, left) will be set inline */
-}
-
-/* New Overlay Styles (for About Me) */
-.content-overlay {
-    display: none; /* Hidden by default */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(20, 20, 30, 0.95); /* Dark semi-transparent background */
-    z-index: 50; /* Below modal, above canvas */
-    overflow-y: auto; /* Allow scrolling if content is long */
-    padding: 40px;
-    color: #eee;
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
-}
-
-.content-overlay.visible {
-    display: block;
-    opacity: 1;
-}
-
-.content-overlay h2 {
-    color: #00aaff;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    font-size: 2rem;
-}
-
-.content-overlay #about-overlay-content p {
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
-    line-height: 1.7;
-    max-width: 800px; /* Limit content width */
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* Ensure close button is styled correctly for overlay too */
-.content-overlay .close-button {
-    color: #aaa;
-    position: absolute;
-    top: 20px; /* Adjust position slightly */
-    right: 35px;
-    font-size: 40px;
-    font-weight: bold;
-    line-height: 1;
-    cursor: pointer;
-    z-index: 51; /* Above overlay content */
-}
-
-.content-overlay .close-button:hover,
-.content-overlay .close-button:focus {
-    color: #fff;
-    text-decoration: none;
-}
-
-/* Optional: Add responsive adjustments for modal width */
-@media (max-width: 600px) {
-    .modal-content {
-        width: 90%;
-    }
 }
 
 /* Style for the new back button */
@@ -204,22 +164,22 @@ body.deconstructed .portfolio-section {
     }
 }
 
-/* Tooltip Styles */
+/* Tooltip Styles - Minor theme adjustments */
 #tooltip {
-    display: none; 
+    display: none;
     position: absolute;
-    /* background-color: rgba(0, 0, 0, 0.8); */ /* Old background */
-    background-color: rgba(10, 20, 40, 0.85); /* Dark blue semi-transparent */
-    color: #eee; /* Lighter text */
-    padding: 8px 14px; 
-    border-radius: 6px; /* Slightly more rounded */
-    font-size: 1.1rem; 
-    white-space: nowrap; 
-    z-index: 100; 
-    pointer-events: none; 
-    font-family: Arial, Helvetica, sans-serif; 
-    border: 1px solid rgba(150, 200, 255, 0.7); /* Subtle light blue border */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Add subtle shadow for depth */
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Subtle text shadow */
+    /* Darker blue, slightly more opaque */
+    background-color: rgba(15, 25, 50, 0.9); /* Dark blue */
+    color: #c0d8ff; /* Light blue text */
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 1.0rem; /* Slightly smaller */
+    white-space: nowrap;
+    z-index: 100;
+    pointer-events: none;
+    font-family: 'Orbitron', sans-serif; /* Use Orbitron for tooltip */
+    border: 1px solid rgba(100, 150, 255, 0.7); /* Match modal border */
+    box-shadow: 0 0 10px rgba(100, 150, 255, 0.4); /* Subtle blue glow */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
     transform: translate(-50%, -110%); /* Keep positioning logic */
 } 

@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Galaxy Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,15 +16,16 @@
     <!-- Tooltip for hover effect -->
     <div id="tooltip"></div>
 
-    <!-- Overlay for "About Me" (replaces modal) -->
-    <div id="about-overlay" class="content-overlay">
-        <span class="close-button" onclick="startExitAnimation()">&times;</span>
-        <h2>About Me</h2>
-        <div id="about-overlay-content">
-            <!-- Content will be populated by JS -->
-            <p>Loading...</p>
+    <!-- Modal for "About Me" (Changed from overlay) -->
+    <div id="about-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('about-modal')">&times;</span>
+            <h2>About Me</h2>
+            <div id="about-overlay-content">
+                <!-- Content will be populated by JS -->
+                <p>Loading...</p>
+            </div>
         </div>
-        <button id="back-button" class="overlay-button" onclick="startExitAnimation()">Back to Overview</button>
     </div>
 
     <!-- Modal for "Project Details" -->
@@ -34,10 +38,9 @@
                  <img id="project-image" src="" alt="Project Image" style="max-width: 100%; height: auto; margin-bottom: 1rem;">
                  <p id="project-description">Loading project details...</p>
                  <p><strong>Technologies:</strong> <span id="project-tech"></span></p>
-                 <a id="project-live-link" href="#" target="_blank" rel="noopener noreferrer">Live Demo</a> |
+                 <a id="project-live-link" href="#" target="_blank" rel="noopener noreferrer">Live Demo</a>
                  <a id="project-code-link" href="#" target="_blank" rel="noopener noreferrer">View Code</a>
             </div>
-            <button class="overlay-button" onclick="closeModal('project-modal')">Back to Overview</button>
         </div>
     </div>
 
