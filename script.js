@@ -11,7 +11,7 @@ const aboutMeContent = {
     title: "About Me",
     text: `<p>Hello! We are Oskar and Philip, passionate developers exploring the vast universe of technology.</p>
            <p>We love creating exciting projects and are always looking for new challenges.</p>
-           <p>This portfolio showcases some constellations of my work. Feel free to explore!</p>`
+           <p>This portfolio showcases some constellations of our work. Feel free to explore!</p>`
            // Consider adding a contact form link or info here too
 };
 
