@@ -9,64 +9,65 @@ if (typeof THREE === 'undefined') {
 // IMPORTANT: Replace these placeholders with your actual content!
 const aboutMeContent = {
     title: "About Me",
-    text: `<p>Hello! I'm [Your Name/Team Name], a passionate developer/designer exploring the vast universe of technology.</p>
-           <p>My journey began with [Your Story]. I specialize in [Your Skills] and love creating [What you love creating].</p>
-           <p>This portfolio showcases some constellations of my work. Feel free to explore!</p>
-           <p>Connect with me: [Link to LinkedIn/GitHub/etc.]</p>`
+    text: `<p>Hello! We are Oskar and Philip, passionate developers exploring the vast universe of technology.</p>
+           <p>We love creating exciting projects and are always looking for new challenges.</p>
+           <p>This portfolio showcases some constellations of my work. Feel free to explore!</p>`
            // Consider adding a contact form link or info here too
 };
 
 const projectsData = [
     {
         id: "project-1",
-        name: "Project Alpha",
-        texture: 'assets/textures/planet1.jpeg', // Restore texture
-        description: "A brief description of Project Alpha, highlighting its goals and key features.",
+        name: "PortfolioX",
+        texture: 'assets/textures/planet1.jpeg', // CORRECTED EXTENSION
+        description: "A foundational project demonstrating core web technologies and interactive 3D elements.",
         tech: "JavaScript, Three.js, HTML, CSS",
-        liveUrl: "#", 
-        codeUrl: "#", 
-        image: 'assets/images/project1_preview.jpg' 
+        liveUrl: "https://oskarmannik.github.io/PortXFolio-hack/", // Add live URL
+        codeUrl: "#", // Add code URL
+        image: 'assets/imgs/project1.png' // Add preview image path
     },
     {
         id: "project-2",
-        name: "Project Beta",
-        texture: 'assets/textures/planet2.jpeg', // Restore texture
-        description: "Details about Project Beta, perhaps focusing on a different skill or technology.",
-        tech: "React, Node.js, Express, MongoDB",
+        name: "DataSphere Navigator",
+        texture: 'assets/textures/planet2.jpeg', // CORRECTED EXTENSION
+        description: "An interactive visualization tool that allows users to explore complex datasets through a 3D interface, revealing hidden patterns and insights.",
+        tech: "React, D3.js, Three.js, Node.js",
         liveUrl: "#",
         codeUrl: "#",
-        image: 'assets/images/project2_preview.jpg'
+        image: 'assets/imgs/project2.png'
     },
     {
         id: "project-3",
-        name: "Project Gamma",
-        texture: 'assets/textures/planet3.jpg', // Restore texture
-        description: "Information on Project Gamma, showcasing versatility or a specific achievement.",
-        tech: "Python, Flask, PostgreSQL, Docker",
+        name: "EcoTracker Live",
+        texture: 'assets/textures/planet3.jpg', // This seems correct based on file list
+        description: "A real-time monitoring dashboard for environmental sensors, built with Python backend and featuring live data streams and historical analysis.",
+        tech: "Python, Flask, WebSocket, PostgreSQL, Chart.js",
         liveUrl: "#",
         codeUrl: "#",
-        image: 'assets/images/project3_preview.jpg'
+        image: 'assets/imgs/project3.png'
     },
     {
         id: "project-4",
-        name: "Project Delta",
-        texture: 'assets/textures/planet4.jpeg', // Assign texture
-        description: "Description for Project Delta goes here. Maybe it was a cool data visualization?",
-        tech: "D3.js, SVG, JavaScript",
+        name: "Synthwave Arcade",
+        texture: 'assets/textures/planet4.jpg', // Temporarily removed - file missing
+        description: "A retro-themed browser game developed with a focus on performance and engaging gameplay mechanics, using pure JavaScript and HTML5 Canvas.",
+        tech: "JavaScript, HTML5 Canvas, Web Audio API",
         liveUrl: "#",
         codeUrl: "#",
-        image: 'assets/images/project4_preview.jpg'
+        image: 'assets/imgs/project4.png'
     },
     {
         id: "project-5",
-        name: "Project Epsilon",
-        texture: 'assets/textures/planet5.jpeg', // Assign texture
-        description: "What about Project Epsilon? Perhaps a mobile-friendly web app?",
-        tech: "Vue.js, Firebase, PWA",
+        name: "CollaboraPad PWA",
+        texture: 'assets/textures/planet5.jpg', // Temporarily removed - file missing
+        description: "A progressive web application for real-time collaborative note-taking, featuring offline support and seamless synchronization across devices.",
+        tech: "Vue.js, Firebase Realtime Database, PWA, Service Workers",
         liveUrl: "#",
         codeUrl: "#",
-        image: 'assets/images/project5_preview.jpg'
+        image: 'assets/imgs/project5.png'
     },
+    // --- NEW PROJECTS ADDED BELOW ---
+    // Add more projects as needed
 ];
 
 // --- Scene Setup ---
