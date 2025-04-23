@@ -49,7 +49,7 @@ const projectsData = [
     {
         id: "project-4",
         name: "Synthwave Arcade",
-        texture: 'assets/textures/planet4.jpg', // Temporarily removed - file missing
+        texture: 'assets/textures/planet4.jpeg', 
         description: "A retro-themed browser game developed with a focus on performance and engaging gameplay mechanics, using pure JavaScript and HTML5 Canvas.",
         tech: "JavaScript, HTML5 Canvas, Web Audio API",
         liveUrl: "#",
@@ -59,7 +59,7 @@ const projectsData = [
     {
         id: "project-5",
         name: "CollaboraPad PWA",
-        texture: 'assets/textures/planet5.jpg', // Temporarily removed - file missing
+        texture: 'assets/textures/planet5.jpeg', 
         description: "A progressive web application for real-time collaborative note-taking, featuring offline support and seamless synchronization across devices.",
         tech: "Vue.js, Firebase Realtime Database, PWA, Service Workers",
         liveUrl: "#",
