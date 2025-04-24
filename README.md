@@ -22,7 +22,7 @@ PortXFolio is an interactive 3D portfolio showcase designed as a galaxy. The cen
 
 The project is hosted live on GitHub Pages. You can access it here:
 
-[https://oskarmannik.github.io/PortXFolio-hack/](https://oskarmannik.github.io/PortXFolio-hack/)
+[https://oskarmannik.github.io/spacefolio/](https://oskarmannik.github.io/spacefolio/)
 
 <!--
 1.  **Clone or Download:** Get a local copy of the repository.
