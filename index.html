@@ -11,31 +11,25 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- The canvas will be the main background/view -->
     <canvas id="bg"></canvas>
 
-    <!-- Tooltip for hover effect -->
     <div id="tooltip"></div>
 
-    <!-- Modal for "About Me" (Changed from overlay) -->
     <div id="about-modal" class="modal">
         <div class="modal-content">
-            <span class="close-button" onclick="closeModal('about-modal')">&times;</span>
+            <span class="close-button">&times;</span>
             <h2>About Me</h2>
             <div id="about-overlay-content">
-                <!-- Content will be populated by JS -->
                 <p>Loading...</p>
             </div>
         </div>
     </div>
 
-    <!-- Modal for "Project Details" -->
     <div id="project-modal" class="modal">
         <div class="modal-content">
-            <span class="close-button" onclick="closeModal('project-modal')">&times;</span>
+            <span class="close-button">&times;</span>
             <h2 id="project-title">Project Title</h2>
             <div id="project-details">
-                 <!-- Content will be populated by JS -->
                  <img id="project-image" src="" alt="Project Image" style="max-width: 100%; height: auto; margin-bottom: 1rem;">
                  <p id="project-description">Loading project details...</p>
                  <p><strong>Technologies:</strong> <span id="project-tech"></span></p>
@@ -45,10 +39,9 @@
         </div>
     </div>
 
-    <!-- Modal for Contact Info -->
     <div id="contact-modal" class="modal">
         <div class="modal-content">
-            <span class="close-button" onclick="closeModal('contact-modal')">&times;</span>
+            <span class="close-button">&times;</span>
             <h2>Contact Me</h2>
             <div id="contact-details">
                  <p>You can reach us via the following channels:</p>
@@ -61,12 +54,11 @@
                  </ul>
                  <br>
 
-                 <h3>Philip Paškov</h3> <!-- Replace with Philip's last name -->
+                 <h3>Philip Paškov</h3> 
                  <ul>
                     <li><strong>Email:</strong> <a href="mailto:pashkovphilip@gmail.com">pashkovphilip@gmail.com</a></li> <!-- Replace with Philip's email -->
                     <li><strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/philip-pa%C5%A1kov-610255293/" target="_blank" rel="noopener noreferrer">Philip's LinkedIn Profile</a></li> <!-- Replace # -->
                     <li><strong>GitHub:</strong> <a href="https://github.com/philip120" target="_blank" rel="noopener noreferrer">Philip's GitHub Profile</a></li>   <!-- Assuming based on README -->
-                    <!-- Add other relevant links for Philip -->
                      
                  </ul>
                  <br>
@@ -76,7 +68,6 @@
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>

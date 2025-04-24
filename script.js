@@ -1,35 +1,29 @@
-// Galaxy Portfolio Logic
-
-// Ensure THREE is available globally
 if (typeof THREE === 'undefined') {
     console.error('THREE.js library not loaded!');
 }
 
-// --- Portfolio Content Data ---
-// IMPORTANT: Replace these placeholders with your actual content!
 const aboutMeContent = {
     title: "About Me",
     text: `<p>Hello! We are Oskar and Philip, passionate developers exploring the vast universe of technology.</p>
            <p>We love creating exciting projects and are always looking for new challenges.</p>
            <p>This portfolio showcases some constellations of our work. Feel free to explore!</p>`
-           // Consider adding a contact form link or info here too
 };
 
 const projectsData = [
     {
         id: "project-1",
         name: "PortfolioX",
-        texture: 'assets/textures/planet1.jpeg', // CORRECTED EXTENSION
+        texture: 'assets/textures/planet1.jpeg', 
         description: "A foundational project demonstrating core web technologies and interactive 3D elements.",
         tech: "JavaScript, Three.js, HTML, CSS",
-        liveUrl: "https://oskarmannik.github.io/PortXFolio-hack/", // Add live URL
-        codeUrl: "#", // Add code URL
-        image: 'assets/imgs/project1.png' // Add preview image path
+        liveUrl: "https://oskarmannik.github.io/PortXFolio-hack/", 
+        codeUrl: "#", 
+        image: 'assets/imgs/project1.png' 
     },
     {
         id: "project-2",
         name: "DataSphere Navigator",
-        texture: 'assets/textures/planet2.jpeg', // CORRECTED EXTENSION
+        texture: 'assets/textures/planet2.jpeg', 
         description: "An interactive visualization tool that allows users to explore complex datasets through a 3D interface, revealing hidden patterns and insights.",
         tech: "React, D3.js, Three.js, Node.js",
         liveUrl: "#",
@@ -39,7 +33,7 @@ const projectsData = [
     {
         id: "project-3",
         name: "EcoTracker Live",
-        texture: 'assets/textures/planet3.jpg', // This seems correct based on file list
+        texture: 'assets/textures/planet3.jpg', 
         description: "A real-time monitoring dashboard for environmental sensors, built with Python backend and featuring live data streams and historical analysis.",
         tech: "Python, Flask, WebSocket, PostgreSQL, Chart.js",
         liveUrl: "#",
@@ -66,47 +60,41 @@ const projectsData = [
         codeUrl: "#",
         image: 'assets/imgs/project5.png'
     },
-    // --- NEW PROJECTS ADDED BELOW ---
-    // Add more projects as needed
+
 ];
 
-// --- Scene Setup ---
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 28; // Start closer, but ensure all planets visible
+camera.position.z = 28; 
 
 const canvas = document.querySelector('#bg');
 const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 
-// --- Controls ---
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 controls.minDistance = 5;  
 controls.maxDistance = 100; 
-let originalEnableDamping = controls.enableDamping; // Store initial damping state
+let originalEnableDamping = controls.enableDamping; 
 
-// --- Lighting ---
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
 scene.add(ambientLight);
 const pointLight = new THREE.PointLight(0xffffff, 1.5, 300);
-pointLight.position.set(0, 0, 0); // Light emanates from the sun
+pointLight.position.set(0, 0, 0); 
 scene.add(pointLight);
 
-// --- Texture Loader ---
 const textureLoader = new THREE.TextureLoader();
 
-// --- Starfield ---
 function addStarfield() {
     const starVertices = [];
     const starColors = [];
     const starSizes = [];
     const baseColor = new THREE.Color(0xffffff);
 
-    for (let i = 0; i < 15000; i++) { // More stars
-        const x = THREE.MathUtils.randFloatSpread(400); // Wider spread
+    for (let i = 0; i < 15000; i++) { 
+        const x = THREE.MathUtils.randFloatSpread(400); 
         const y = THREE.MathUtils.randFloatSpread(400);
         const z = THREE.MathUtils.randFloatSpread(400);
         starVertices.push(x, y, z);
@@ -133,7 +121,6 @@ function addStarfield() {
 }
 addStarfield();
 
-// --- Sun (About Me) ---
 const sunGeometry = new THREE.SphereGeometry(2.5, 32, 32);
 const sunMaterial = new THREE.MeshStandardMaterial({
     emissive: 0xffff00, 
@@ -142,87 +129,67 @@ const sunMaterial = new THREE.MeshStandardMaterial({
     color: 0xffff00
 });
 const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
-sunMesh.name = "AboutMeSun"; // Identifier for clicking
-sunMesh.userData = aboutMeContent; // Attach data
+sunMesh.name = "AboutMeSun"; 
+sunMesh.userData = aboutMeContent; 
 scene.add(sunMesh);
 
-// --- Planets (Projects) ---
-const planets = []; // Holds planet meshes for interaction and animation
-const planetGeometry = new THREE.SphereGeometry(0.8, 32, 32); // Restore geometry
+const planets = []; 
+const planetGeometry = new THREE.SphereGeometry(0.8, 32, 32); 
 const orbitRadiusBase = 8;
 const angleStep = (Math.PI * 2) / projectsData.length;
 
-// Restore original loop for creating sphere planets
 projectsData.forEach((project, index) => {
     const planetMaterial = new THREE.MeshStandardMaterial({
         map: project.texture ? textureLoader.load(project.texture) : null,
-        color: !project.texture ? Math.random() * 0xffffff : 0xffffff // Fallback random color if no texture
+        color: !project.texture ? Math.random() * 0xffffff : 0xffffff 
     });
     const planetMesh = new THREE.Mesh(planetGeometry, planetMaterial);
 
     const angle = angleStep * index;
-    const orbitRadius = orbitRadiusBase + index * 3; // Stagger orbits
+    const orbitRadius = orbitRadiusBase + index * 3; 
     planetMesh.position.x = Math.cos(angle) * orbitRadius;
     planetMesh.position.z = Math.sin(angle) * orbitRadius;
-    planetMesh.position.y = THREE.MathUtils.randFloatSpread(1); // Keep slight vertical variation
+    planetMesh.position.y = THREE.MathUtils.randFloatSpread(1); 
 
     planetMesh.name = project.id; 
     planetMesh.userData = project; 
     planetMesh.orbitRadius = orbitRadius;
     planetMesh.angle = angle;
-    planetMesh.orbitSpeed = 0.002 + Math.random() * 0.002; // Keep slower speed
+    planetMesh.orbitSpeed = 0.002 + Math.random() * 0.002; 
 
     scene.add(planetMesh);
     planets.push(planetMesh);
-    // Note: We will add planets to interactiveObjects later, after rocket setup
 });
 
-// --- Contact Rocket ---
-// Remove old cone geometry/mesh
-// const rocketGeometry = new THREE.ConeGeometry(0.5, 2, 16);
-// const rocketMaterial = new THREE.MeshStandardMaterial({ color: 0xaaaaaa, metalness: 0.8, roughness: 0.5 });
-// const rocketMesh = new THREE.Mesh(rocketGeometry, rocketMaterial);
-// rocketMesh.name = "ContactRocket"; // Identifier for clicking/hovering
-// rocketMesh.position.set(0, 8, 0); // Position it above the sun
-// rocketMesh.rotation.x = Math.PI; // Point it upwards
-// scene.add(rocketMesh);
 
-// Instantiate a loader
 const loader = new THREE.GLTFLoader();
 
-let loadedRocket = null; // Variable to hold the loaded rocket scene
+let loadedRocket = null; 
 
-// Continuous movement variables
 let rocketVelocity = new THREE.Vector3(THREE.MathUtils.randFloatSpread(1), 0, THREE.MathUtils.randFloatSpread(1)).normalize(); // Start with random horizontal direction
-const ROCKET_MAX_SPEED = 0.008;    // Max units per frame (Further Reduced from 0.02)
-const ROCKET_STEERING_FORCE = 0.0002; // How quickly it changes direction (Further Reduced from 0.0005)
-const ROCKET_TURN_SPEED = 0.025;   // How quickly it reorients (Slightly Adjusted)
-const WANDER_RADIUS = 12;        // How far it roams from the center
-const WANDER_Y_RANGE = 2;        // How much it moves up/down
-const rocketYPosition = 8;       // Base height
+const ROCKET_MAX_SPEED = 0.008;    
+const ROCKET_STEERING_FORCE = 0.0002; 
+const ROCKET_TURN_SPEED = 0.025;   
+const WANDER_RADIUS = 12;        
+const WANDER_Y_RANGE = 2;        
+const rocketYPosition = 8;       
 
-// Quaternions for orientation correction
 const horizontalCorrectionQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI / 2);
 const reverseDirectionQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
-const targetOrientation = new THREE.Quaternion(); // To store calculated orientation
+const targetOrientation = new THREE.Quaternion(); 
 
-// Load a glTF resource
 loader.load(
-	// resource URL
 	'assets/models/rocket.glb',
-	// called when the resource is loaded
+
 	function ( gltf ) {
 
 		loadedRocket = gltf.scene;
-        loadedRocket.name = "ContactRocket"; // Assign name for interaction
+        loadedRocket.name = "ContactRocket"; 
 
-        // --- Adjust scale, position, rotation as needed ---
-        const scale = 0.2; // Make it smaller
+        const scale = 0.2; 
         loadedRocket.scale.set(scale, scale, scale);
-        // Set initial rotation to horizontal and facing forward (relative to initial target)
         loadedRocket.quaternion.copy(horizontalCorrectionQuaternion).multiply(reverseDirectionQuaternion);
 
-        // Initialize position randomly within bounds
         loadedRocket.position.set(
             THREE.MathUtils.randFloatSpread(WANDER_RADIUS),
             rocketYPosition + THREE.MathUtils.randFloatSpread(WANDER_Y_RANGE),
@@ -231,29 +198,23 @@ loader.load(
 
 		scene.add( loadedRocket );
 
-        // Add the loaded model to interactive objects AFTER it's loaded
         interactiveObjects.push(loadedRocket);
         console.log('Rocket model loaded and added to interactiveObjects.');
 
 	},
-	// called while loading is progressing
 	function ( xhr ) {
 		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
 	},
-	// called when loading has errors
 	function ( error ) {
 		console.log( 'An error happened loading the rocket model:', error );
 	}
 );
 
-// Array of interactive objects for raycasting - initially without rocket
 const interactiveObjects = [sunMesh, ...planets];
 
-// --- Interaction Variables ---
-const defaultCursor = 'grab'; // Or 'default'
+const defaultCursor = 'grab'; 
 canvas.style.cursor = defaultCursor;
 
-// --- Camera Animation State ---
 let isAnimatingCamera = false;
 let cameraAnimationTarget = new THREE.Vector3();
 const cameraAnimationSpeed = 1.5; 
@@ -262,16 +223,14 @@ let initialCameraPosition = new THREE.Vector3();
 let isAnimatingCameraBack = false; 
 let currentAnimationTargetObject = null; 
 let flyBackTriggeredBy = null; 
-let pausedPlanet = null; // Keep track of the currently viewed/paused planet
+let pausedPlanet = null; 
 
-// --- Raycasting for Interaction ---
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-// DOM Elements
 const tooltipElement = document.getElementById('tooltip');
-const aboutModal = document.getElementById('about-modal'); // Changed from aboutOverlay
-const aboutContentContainer = document.getElementById('about-overlay-content'); // Keep existing ID for content
+const aboutModal = document.getElementById('about-modal'); 
+const aboutContentContainer = document.getElementById('about-overlay-content');
 const projectModal = document.getElementById('project-modal');
 const projectTitleEl = document.getElementById('project-title');
 const projectImageEl = document.getElementById('project-image');
@@ -279,9 +238,8 @@ const projectDescriptionEl = document.getElementById('project-description');
 const projectTechEl = document.getElementById('project-tech');
 const projectLiveLinkEl = document.getElementById('project-live-link');
 const projectCodeLinkEl = document.getElementById('project-code-link');
-const contactModal = document.getElementById('contact-modal'); // Added for consistency
+const contactModal = document.getElementById('contact-modal'); 
 
-// Updated: Generic function to start fly-in animation
 function startCameraAnimation(targetObject, zoomOffset) {
     if (isAnimatingCamera || isAnimatingCameraBack) {
         console.log("Animation start ignored: Already animating.");
@@ -291,7 +249,7 @@ function startCameraAnimation(targetObject, zoomOffset) {
     console.log(`Attempting to start fly-in animation towards ${targetObject.name}`); 
     initialCameraPosition.copy(camera.position);
     targetOrbitTarget = controls.target.clone(); 
-    originalEnableDamping = controls.enableDamping; // Store current damping state
+    originalEnableDamping = controls.enableDamping; 
 
     currentAnimationTargetObject = targetObject;
 
@@ -306,14 +264,12 @@ function startCameraAnimation(targetObject, zoomOffset) {
     }
     console.log("Calculated target position:", cameraAnimationTarget); 
     
-    // --- Disable controls and damping --- 
     controls.enabled = false;
-    controls.enableDamping = false; // <<< Disable damping during animation
+    controls.enableDamping = false; 
     isAnimatingCamera = true;
     console.log("isAnimatingCamera set to true. Controls and Damping disabled."); 
 }
 
-// Function to show the About Me modal (Renamed and updated)
 function showAboutModal() {
     console.log("Attempting to show About Modal...");
     if (!aboutModal || !aboutContentContainer) {
@@ -322,9 +278,9 @@ function showAboutModal() {
     }
     console.log("Populating About Modal content.");
     aboutContentContainer.innerHTML = aboutMeContent.text;
-    aboutModal.style.display = 'block'; // Use display block like other modals
+    aboutModal.style.display = 'block'; 
     console.log("Set 'display: block' for about-modal.");
-    controls.enabled = false; // Keep disabled
+    controls.enabled = false;
     console.log("OrbitControls remain disabled.");
 }
 
@@ -340,19 +296,16 @@ function showProjectModal(data) {
     projectCodeLinkEl.style.display = (data.codeUrl && data.codeUrl !== '#') ? 'inline' : 'none';
 
     projectModal.style.display = 'block';
-    controls.enabled = false; // Keep controls disabled
+    controls.enabled = false; 
     console.log("Showing project modal. OrbitControls disabled.");
-    // Planet is already paused by onMouseClick
 }
 
-// Function to show Contact Modal
 function showContactModal() {
     if (contactModal) {
         console.log("Showing contact modal.");
         contactModal.style.display = 'block';
-        // Keep controls disabled if animating, otherwise enable
         if (!isAnimatingCamera && !isAnimatingCameraBack) {
-             controls.enabled = false; // Disable controls when contact modal is open
+             controls.enabled = false; 
              console.log("Controls disabled while contact modal open.");
         } else {
              console.log("Keeping controls disabled (camera animating).")
@@ -360,92 +313,95 @@ function showContactModal() {
     }
 }
 
-function onMouseClick(event) {
-    // Don't process clicks if a modal is visible or camera is animating
+// --- Raycasting and Interaction Logic (Refactored) ---
+function handleInteraction(clientX, clientY) {
+    let interactionOccurred = false; // Flag to track if interaction happened
+
     if (isAnimatingCamera || isAnimatingCameraBack ||
-        (aboutModal && aboutModal.style.display === 'block') || // Check aboutModal
+        (aboutModal && aboutModal.style.display === 'block') ||
         (projectModal && projectModal.style.display === 'block') ||
-        (contactModal && contactModal.style.display === 'block')) { // Check contactModal
-        return;
+        (contactModal && contactModal.style.display === 'block')) {
+        return interactionOccurred; // Return false if modals are open
     }
 
-    // Calculate mouse position
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+    mouse.x = (clientX / window.innerWidth) * 2 - 1;
+    mouse.y = - (clientY / window.innerHeight) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
 
-    // Check intersections with interactive objects
-    const intersects = raycaster.intersectObjects(interactiveObjects, true); // Add true for recursive check inside models
+    const intersects = raycaster.intersectObjects(interactiveObjects, true);
 
     if (intersects.length > 0) {
-        // Find the highest level object with a name we care about
         let clickedNamedObject = null;
         for(let i = 0; i < intersects.length; i++) {
             let obj = intersects[i].object;
-            // Traverse up scene graph to find the named parent (sun, planet, or loaded rocket)
             while (obj.parent && !interactiveObjects.includes(obj)) {
                 obj = obj.parent;
             }
             if (interactiveObjects.includes(obj)) {
                 clickedNamedObject = obj;
-                break; // Found the main interactive object
+                break;
             }
         }
 
         if(clickedNamedObject){
-            console.log(`Clicked on: ${clickedNamedObject.name}`); // Log clicked object
+            interactionOccurred = true; // Mark interaction as happening
             if (clickedNamedObject.name === "AboutMeSun") {
-                // --- PAUSE ANY PREVIOUSLY PAUSED PLANET (if any) ---
                 if (pausedPlanet) {
                     pausedPlanet.isPaused = false;
-                    console.log(`Resuming planet ${pausedPlanet.name} before focusing on sun.`);
                     pausedPlanet = null;
                 }
-                 // --- END PAUSE ---
                 startCameraAnimation(clickedNamedObject, 6.0);
             } else if (clickedNamedObject.name === "ContactRocket") {
-                // --- PAUSE ANY PREVIOUSLY PAUSED PLANET (if any) ---
                  if (pausedPlanet) {
                     pausedPlanet.isPaused = false;
-                    console.log(`Resuming planet ${pausedPlanet.name} before opening contact.`);
                     pausedPlanet = null;
                 }
-                 // --- END PAUSE ---
-                console.log("Contact rocket clicked!");
-                // Start camera animation towards rocket *before* showing modal
-                startCameraAnimation(clickedNamedObject, 3.0); // Zoom closer to rocket
-                // Modal will be shown after animation finishes in animate() loop
-
+                startCameraAnimation(clickedNamedObject, 3.0);
             } else if (clickedNamedObject.userData && clickedNamedObject.userData.id?.startsWith('project-')) {
-                console.log(`Clicked on Project Planet: ${clickedNamedObject.name}`);
-                // --- PAUSE PLANET IMMEDIATELY ---
                 if (pausedPlanet && pausedPlanet !== clickedNamedObject) {
                     pausedPlanet.isPaused = false;
-                     console.log(`Resuming previous planet ${pausedPlanet.name}.`);
                 }
                 pausedPlanet = clickedNamedObject;
                 if(pausedPlanet) {
                     pausedPlanet.isPaused = true;
-                    console.log(`>>> Pausing planet: ${pausedPlanet.name} immediately on click.`);
                 } else {
-                     console.warn("Could not identify clicked planet object to pause immediately.");
+                     
                 }
-                 // --- END PAUSE ---
                 startCameraAnimation(clickedNamedObject, 3.0);
             }
         } else {
-            console.log("Clicked part of model, but didn't find named parent.");
+            interactionOccurred = false; // No named object clicked
         }
     } else {
-        // console.log("Click detected, but no interactive object intersected.");
+         interactionOccurred = false; // No intersection
     }
+    return interactionOccurred; // Return the flag
+}
+
+// --- Event Listeners ---
+
+// Mouse Click Listener (Uses refactored logic)
+function onMouseClick(event) {
+    handleInteraction(event.clientX, event.clientY);
 }
 window.addEventListener('click', onMouseClick, false);
 
-// Function to handle mouse movement for hover effects
+// Touch End Listener (for mobile taps)
+function onTouchEnd(event) {
+    if (event.changedTouches.length > 0) {
+        const touch = event.changedTouches[0];
+        const interactionHappened = handleInteraction(touch.clientX, touch.clientY);
+        
+        // Only prevent default if a 3D interaction occurred
+        if (interactionHappened) {
+            event.preventDefault(); 
+        }
+    }
+}
+window.addEventListener('touchend', onTouchEnd, false);
+
 function onMouseMove(event) {
-    // Don't show hover effects if a modal is active or camera is animating
     if (isAnimatingCamera || isAnimatingCameraBack ||
         (aboutModal && aboutModal.style.display === 'block') || // Check aboutModal
         (projectModal && projectModal.style.display === 'block') ||
@@ -455,18 +411,15 @@ function onMouseMove(event) {
         return;
     }
 
-    // Calculate mouse position
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
 
-    // Check intersections with interactive objects
-    // Ensure recursive check is enabled for models if not already
+    
     const intersects = raycaster.intersectObjects(interactiveObjects, true);
 
     if (intersects.length > 0) {
-        // Find the main interactive object (sun, planet sphere, loaded rocket scene)
         let hoveredNamedObject = null;
         for(let i = 0; i < intersects.length; i++) {
             let obj = intersects[i].object;
@@ -487,19 +440,16 @@ function onMouseMove(event) {
             else if (hoveredNamedObject.userData && hoveredNamedObject.userData.name) { objectName = hoveredNamedObject.userData.name; }
 
             if (objectName) {
-                // --- Calculate position above object using bounding box ---
                 const boundingBox = new THREE.Box3().setFromObject(hoveredNamedObject); 
                 const center = new THREE.Vector3();
                 boundingBox.getCenter(center);
                 const size = new THREE.Vector3();
                 boundingBox.getSize(size);
 
-                // Point slightly above the top-center of the bounding box
                 const topCenterOffset = new THREE.Vector3(0, size.y / 2 + 0.6, 0); 
                 const tooltipAnchor3D = center.add(topCenterOffset);
                 
                 const projectedPosition = tooltipAnchor3D.project(camera); 
-                // ---------------------------------------------------------
 
                 const isVisible = Math.abs(projectedPosition.x) <= 1 && Math.abs(projectedPosition.y) <= 1 && projectedPosition.z < 1;
 
@@ -510,7 +460,6 @@ function onMouseMove(event) {
                     tooltipElement.textContent = objectName;
                     tooltipElement.style.left = `${screenX}px`;
                     tooltipElement.style.top = `${screenY}px`;
-                    // Center the tooltip ON the projected anchor point
                     tooltipElement.style.transform = 'translate(-50%, -50%)'; 
                     tooltipElement.style.display = 'block';
                     canvas.style.cursor = 'pointer';
@@ -523,7 +472,6 @@ function onMouseMove(event) {
                  canvas.style.cursor = defaultCursor;
             }
         } else {
-             // No named interactive object found up the hierarchy
             tooltipElement.style.display = 'none';
             canvas.style.cursor = defaultCursor;
         }
@@ -535,14 +483,12 @@ function onMouseMove(event) {
 }
 window.addEventListener('mousemove', onMouseMove, false);
 
-// --- Animation Loop ---
-const clock = new THREE.Clock(); // For smooth animation
+const clock = new THREE.Clock(); 
 
 function animate() {
     requestAnimationFrame(animate);
-    const delta = clock.getDelta(); // Use delta for smoother frame rate independence if needed
+    const delta = clock.getDelta(); 
 
-    // Handle Camera Fly-in Animation
     if (isAnimatingCamera) {
         console.log("Animating camera fly-in...");
         camera.position.lerp(cameraAnimationTarget, cameraAnimationSpeed * delta);
@@ -552,19 +498,18 @@ function animate() {
         if (distanceToTarget < 0.5) {
             console.log("  Reached target!");
             isAnimatingCamera = false;
-            camera.position.copy(cameraAnimationTarget); // Snap position
+            camera.position.copy(cameraAnimationTarget); 
 
             if (currentAnimationTargetObject) {
                  console.log(`  Animation finished for: ${currentAnimationTargetObject.name}`);
-                 // --- Defer showing modal/overlay to next frame --- 
                  const targetToShow = currentAnimationTargetObject;
                  requestAnimationFrame(() => {
                      if (targetToShow.name === "AboutMeSun") {
-                         showAboutModal(); // Call the updated function
+                         showAboutModal(); 
                      } else if (targetToShow.userData && targetToShow.userData.id?.startsWith('project-')) {
                          showProjectModal(targetToShow.userData);
                      } else if (targetToShow.name === "ContactRocket") {
-                         showContactModal(); // Show contact modal after animation
+                         showContactModal();
                      }
                  });
                  // --------------------------------------------------
@@ -587,7 +532,6 @@ function animate() {
             isAnimatingCameraBack = false;
             camera.position.copy(initialCameraPosition);
 
-            // Resume planet if fly-back was triggered by project or about modal closing
             if (flyBackTriggeredBy === 'project' || flyBackTriggeredBy === 'about') {
                 console.log(`${flyBackTriggeredBy} fly-back finished. Resuming planet if paused.`);
                 if (pausedPlanet) {
@@ -600,28 +544,24 @@ function animate() {
             }
              flyBackTriggeredBy = null;
 
-            // Restore original controls target and enable controls
             if (targetOrbitTarget) {
                 controls.target.copy(targetOrbitTarget);
             }
-            controls.enabled = true; // <<< Re-enable controls
-            console.log(`>>> CONTROLS ENABLED set to: ${controls.enabled}`); // <<< ADD SPECIFIC LOG
+            controls.enabled = true;
+            
             controls.enableDamping = originalEnableDamping;
             controls.update();
-            console.log("Controls enabled after fly-back.");
+            
             currentAnimationTargetObject = null;
         }
     }
-    // Update Controls if enabled and not animating
     else {
         if (controls.enabled) {
             controls.update();
         }
     }
 
-    // --- Animate Rocket (if loaded) ---
     if (loadedRocket) {
-        // 1. Calculate Steering Force (Wander)
         let steer = new THREE.Vector3(
             THREE.MathUtils.randFloatSpread(2) - 1, // -1 to 1
             THREE.MathUtils.randFloatSpread(2) - 1, // -1 to 1  (Allows vertical wandering)
@@ -630,20 +570,16 @@ function animate() {
         steer.normalize();
         steer.multiplyScalar(ROCKET_STEERING_FORCE);
 
-        // 2. Apply Boundary Steering (Re-enabled)
         
         const distanceCenter = loadedRocket.position.distanceTo(new THREE.Vector3(0, rocketYPosition, 0));
         if (distanceCenter > WANDER_RADIUS) {
             let steerToCenter = new THREE.Vector3(0, rocketYPosition, 0).sub(loadedRocket.position); // Target point is center at base height
             steerToCenter.normalize();
-            // Apply horizontal component more strongly if far out
             steer.x += steerToCenter.x * ROCKET_STEERING_FORCE * 2; 
             steer.z += steerToCenter.z * ROCKET_STEERING_FORCE * 2;
-            // Apply vertical component gently 
             steer.y += steerToCenter.y * ROCKET_STEERING_FORCE * 0.5; 
         }
         
-        // Y boundary check (Keep it within WANDER_Y_RANGE of rocketYPosition)
         let verticalCorrectionForce = 0;
         if(loadedRocket.position.y > rocketYPosition + WANDER_Y_RANGE/2) {
             verticalCorrectionForce = (rocketYPosition + WANDER_Y_RANGE/2) - loadedRocket.position.y; // Negative force (down)
@@ -656,14 +592,11 @@ function animate() {
         }
         
 
-        // 3. Update Velocity
         rocketVelocity.add(steer);
         rocketVelocity.clampLength(0, ROCKET_MAX_SPEED); // Limit speed
 
-        // 4. Update Position
         loadedRocket.position.add(rocketVelocity);
 
-        // 5. Update Orientation (Smooth Turn)
         if (rocketVelocity.lengthSq() > 0.0001) { 
              const lookTargetPos = loadedRocket.position.clone().add(rocketVelocity); 
              const tempMatrix = new THREE.Matrix4();
@@ -675,29 +608,20 @@ function animate() {
          }
     }
 
-    // Rotate Sun (always)
     sunMesh.rotation.y += 0.001;
 
-    // --- Animate Planets ---
     planets.forEach(planet => {
-         // Check if planet is paused
          if (planet.isPaused) {
-             // Log position when skipped
              console.log(`Skipping animation for paused planet: ${planet.name} at x=${planet.position.x.toFixed(2)}`); 
-             return; // Skip animation if paused
+             return; 
          }
 
-        // Original animation logic
         if (planet instanceof THREE.Mesh && typeof planet.angle !== 'undefined' && typeof planet.orbitSpeed !== 'undefined' && typeof planet.orbitRadius !== 'undefined') {
-            // Log position before animating
-            // console.log(`Animating planet: ${planet.name} starting at x=${planet.position.x.toFixed(2)}`); 
+            
         planet.angle += planet.orbitSpeed;
         planet.position.x = Math.cos(planet.angle) * planet.orbitRadius;
         planet.position.z = Math.sin(planet.angle) * planet.orbitRadius;
-            // Log position after animating
-            // console.log(`   Animated planet: ${planet.name} ending at x=${planet.position.x.toFixed(2)}`);
             
-            // Add self-rotation
             if (planet.children.length > 0) { 
                  planet.children[0].rotation.y += 0.005; 
             } else {
@@ -709,7 +633,6 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-// --- Handle Window Resize ---
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -717,26 +640,21 @@ window.addEventListener('resize', () => {
     renderer.setPixelRatio(window.devicePixelRatio);
 });
 
-// --- Start Animation ---
 animate();
 
-// --- Global Modal Close Function --- 
 window.closeModal = function(modalId) {
     const modal = document.getElementById(modalId);
     if (!modal) return;
     console.log(`closeModal called for: ${modalId}`);
 
     if (modalId === 'project-modal' || modalId === 'about-modal' || modalId === 'contact-modal') {
-        // Handle fly-back for Project, About, and Contact modals
         if (isAnimatingCameraBack) {
             console.log(`${modalId} close ignored: fly-back already in progress.`);
             return;
         }
         console.log(`>>> ${modalId} close: Hiding modal AND Initiating fly-back.`);
-        // --- HIDE MODAL IMMEDIATELY --- 
         modal.style.display = 'none';
         // ----------------------------- 
-        // Set trigger source based on modal type
         if (modalId === 'project-modal') { flyBackTriggeredBy = 'project'; }
         else if (modalId === 'about-modal') { flyBackTriggeredBy = 'about'; }
         else if (modalId === 'contact-modal') { flyBackTriggeredBy = 'contact'; }
@@ -744,21 +662,49 @@ window.closeModal = function(modalId) {
         isAnimatingCameraBack = true;
         controls.enabled = false;
     } else {
-        // Default case for any other potential modals (future-proofing)
         modal.style.display = 'none';
         console.log(`Closed modal instantly (default case): ${modalId}`);
     }
 };
 
-// --- Background Click Listener --- 
-window.addEventListener('click', (event) => {
-    // Check if click is on the background of ANY visible modal
-    const modals = [aboutModal, projectModal, contactModal];
-    for (const modal of modals) {
-        if (modal && modal.style.display === 'block' && event.target === modal) {
-             console.log(`${modal.id} background clicked. Calling closeModal...`);
-             closeModal(modal.id);
-             break; // Close only the clicked modal
-        }
+// --- Attach Modal Close Listeners (NEW) ---
+
+// Function to handle close action for both click and touch
+function handleCloseEvent(event, modalId) {
+    event.stopPropagation(); // Prevent event bubbling up
+    if (event.type === 'touchend') {
+        event.preventDefault(); // Prevent potential duplicate click
+    }
+    closeModal(modalId);
+}
+
+// Attach listeners to close buttons
+document.querySelectorAll('.modal .close-button').forEach(button => {
+    const modal = button.closest('.modal');
+    if (modal) {
+        const modalId = modal.id;
+        button.addEventListener('click', (e) => handleCloseEvent(e, modalId));
+        button.addEventListener('touchend', (e) => handleCloseEvent(e, modalId));
+    }
+});
+
+// Attach listeners to modal backgrounds
+[aboutModal, projectModal, contactModal].forEach(modal => {
+    if (modal) {
+        const modalId = modal.id;
+        // Listener for click on background
+        modal.addEventListener('click', (event) => {
+            // Check if the click is directly on the modal background
+            if (event.target === modal) {
+                handleCloseEvent(event, modalId);
+            }
+        });
+        // Listener for touch on background
+        modal.addEventListener('touchend', (event) => {
+             // Check if the touch end is directly on the modal background
+            if (event.target === modal) {
+                handleCloseEvent(event, modalId);
+            }
+        });
     }
 });
